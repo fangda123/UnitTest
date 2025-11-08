@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client Example</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 100%;
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .control-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button.primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        button.primary:hover {
+            background: #5568d3;
+        }
+        
+        button.danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        button.danger:hover {
+            background: #c82333;
+        }
+        
+        button.secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        button.secondary:hover {
+            background: #5a6268;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .messages {
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .messages h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .message {
+            background: white;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .message-time {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .message-type {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        
+        .message-type.info {
+            background: #cfe2ff;
+            color: #084298;
+        }
+        
+        .message-type.success {
+            background: #d1e7dd;
+            color: #0a3622;
+        }
+        
+        .message-type.warning {
+            background: #fff3cd;
+            color: #664d03;
+        }
+        
+        .message-type.error {
+            background: #f8d7da;
+            color: #58151c;
+        }
+        
+        .message-content {
+            color: #333;
+            margin-top: 5px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+        }
+        
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .instructions h4 {
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 WebSocket Client</h1>
+        <p class="subtitle">ตัวอย่างการเชื่อมต่อ WebSocket สำหรับ Real-time Notifications</p>
+        
+        <div class="instructions">
+            <h4>📝 วิธีใช้งาน:</h4>
+            <ol>
+                <li>กรอก WebSocket URL (ค่าเริ่มต้น: ws://localhost:3000/ws)</li>
+                <li>คลิก "เชื่อมต่อ" เพื่อเชื่อมต่อกับ server</li>
+                <li>กรอก JWT Token ที่ได้จากการ login</li>
+                <li>คลิก "ยืนยันตัวตน" เพื่อ authenticate</li>
+                <li>รอรับข้อความแบบ real-time จาก server</li>
+            </ol>
+        </div>
+        
+        <div id="status" class="status disconnected">
+            <div class="status-dot"></div>
+            <span>ยังไม่ได้เชื่อมต่อ</span>
+        </div>
+        
+        <div class="control-panel">
+            <div class="form-group">
+                <label for="wsUrl">WebSocket URL:</label>
+                <input type="text" id="wsUrl" value="ws://localhost:3000/ws" placeholder="ws://localhost:3000/ws">
+            </div>
+            
+            <div class="form-group">
+                <label for="token">JWT Token (ได้จากการ login):</label>
+                <input type="text" id="token" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+            </div>
+            
+            <div class="button-group">
+                <button class="primary" id="connectBtn" onclick="connect()">เชื่อมต่อ</button>
+                <button class="danger" id="disconnectBtn" onclick="disconnect()" disabled>ตัดการเชื่อมต่อ</button>
+                <button class="secondary" id="authBtn" onclick="authenticate()" disabled>ยืนยันตัวตน</button>
+                <button class="secondary" onclick="clearMessages()">ล้างข้อความ</button>
+            </div>
+        </div>
+        
+        <div class="messages">
+            <h3>📨 ข้อความที่ได้รับ:</h3>
+            <div id="messagesList">
+                <div class="empty-state">
+                    ยังไม่มีข้อความ<br>
+                    เชื่อมต่อกับ WebSocket เพื่อรับข้อความ
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let ws = null;
+        
+        function connect() {
+            const url = document.getElementById('wsUrl').value;
+            
+            if (!url) {
+                alert('กรุณากรอก WebSocket URL');
+                return;
+            }
+            
+            try {
+                ws = new WebSocket(url);
+                
+                ws.onopen = () => {
+                    updateStatus(true, 'เชื่อมต่อสำเร็จ');
+                    addMessage('connected', 'เชื่อมต่อกับ WebSocket สำเร็จ');
+                    document.getElementById('connectBtn').disabled = true;
+                    document.getElementById('disconnectBtn').disabled = false;
+                    document.getElementById('authBtn').disabled = false;
+                };
+                
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleMessage(data);
+                    } catch (error) {
+                        console.error('Error parsing message:', error);
+                    }
+                };
+                
+                ws.onerror = (error) => {
+                    console.error('WebSocket Error:', error);
+                    addMessage('error', 'เกิดข้อผิดพลาดในการเชื่อมต่อ');
+                };
+                
+                ws.onclose = () => {
+                    updateStatus(false, 'ตัดการเชื่อมต่อแล้ว');
+                    addMessage('info', 'ตัดการเชื่อมต่อ WebSocket');
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('disconnectBtn').disabled = true;
+                    document.getElementById('authBtn').disabled = true;
+                };
+            } catch (error) {
+                alert('ไม่สามารถเชื่อมต่อได้: ' + error.message);
+            }
+        }
+        
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+        
+        function authenticate() {
+            const token = document.getElementById('token').value;
+            
+            if (!token) {
+                alert('กรุณากรอก JWT Token');
+                return;
+            }
+            
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                alert('กรุณาเชื่อมต่อกับ WebSocket ก่อน');
+                return;
+            }
+            
+            ws.send(JSON.stringify({
+                type: 'auth',
+                token: token
+            }));
+            
+            addMessage('info', 'ส่งคำขอยืนยันตัวตนแล้ว');
+        }
+        
+        function handleMessage(data) {
+            let messageType = 'info';
+            let message = data.message || JSON.stringify(data);
+            
+            switch (data.type) {
+                case 'connected':
+                    messageType = 'info';
+                    break;
+                case 'authenticated':
+                    messageType = 'success';
+                    break;
+                case 'error':
+                    messageType = 'error';
+                    break;
+                case 'user.created':
+                case 'user.updated':
+                case 'user.deleted':
+                    messageType = 'warning';
+                    message = `${data.message}\n${JSON.stringify(data.data, null, 2)}`;
+                    break;
+                case 'crypto.price.update':
+                    messageType = 'info';
+                    message = `${data.message}\nPrice: $${data.data.price}`;
+                    break;
+                default:
+                    messageType = 'info';
+            }
+            
+            addMessage(messageType, message);
+        }
+        
+        function addMessage(type, content) {
+            const messagesList = document.getElementById('messagesList');
+            
+            // ลบ empty state ถ้ามี
+            const emptyState = messagesList.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('th-TH');
+            
+            messageDiv.innerHTML = `
+                <div class="message-time">${timeStr}</div>
+                <div>
+                    <span class="message-type ${type}">${type.toUpperCase()}</span>
+                </div>
+                <div class="message-content">${content.replace(/\n/g, '<br>')}</div>
+            `;
+            
+            messagesList.insertBefore(messageDiv, messagesList.firstChild);
+            
+            // จำกัดจำนวนข้อความไม่เกิน 50
+            while (messagesList.children.length > 50) {
+                messagesList.removeChild(messagesList.lastChild);
+            }
+        }
+        
+        function clearMessages() {
+            const messagesList = document.getElementById('messagesList');
+            messagesList.innerHTML = `
+                <div class="empty-state">
+                    ยังไม่มีข้อความ<br>
+                    เชื่อมต่อกับ WebSocket เพื่อรับข้อความ
+                </div>
+            `;
+        }
+        
+        function updateStatus(connected, message) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${connected ? 'connected' : 'disconnected'}`;
+            statusDiv.innerHTML = `
+                <div class="status-dot"></div>
+                <span>${message}</span>
+            `;
+        }
+        
+        // ปิดการเชื่อมต่อเมื่อออกจากหน้า
+        window.addEventListener('beforeunload', () => {
+            if (ws) {
+                ws.close();
+            }
+        });
+    </script>
+</body>
+</html>
+

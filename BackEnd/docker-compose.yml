@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # API Application
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongo:27017/backend_test
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - JWT_EXPIRE=7d
+      - REDIS_TTL=60
+      - BINANCE_API_URL=https://api.binance.com
+      - BINANCE_WS_URL=wss://stream.binance.com:9443
+      - CRYPTO_SYMBOL=BTCUSDT
+      - UPDATE_INTERVAL=60000
+      - INTERNAL_API_KEY=your-internal-api-key-change-this
+    depends_on:
+      - mongo
+      - redis
+    restart: unless-stopped
+    networks:
+      - backend-network
+
+  # MongoDB Database
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+    networks:
+      - backend-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - backend-network
+
+volumes:
+  mongo-data:
+  redis-data:
+
+networks:
+  backend-network:
+    driver: bridge
+

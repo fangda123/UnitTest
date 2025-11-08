@@ -1,0 +1,1460 @@
+{
+  "info": {
+    "name": "Backend Skill Test API - Complete",
+    "description": "API Collection ครบถ้วนสำหรับการทดสอบทักษะ Backend Developer\n\n## วิธีใช้งาน:\n1. Import collection เข้า Postman\n2. Import environment file (Local/Production)\n3. เริ่มจาก folder 'Setup - สร้าง Users'\n4. Login แบบ User หรือ Admin\n5. Token จะถูก save อัตโนมัติ\n6. ทดสอบความแตกต่างของ permissions\n\n## ⚠️ สำคัญ:\n- User ธรรมดา: เข้าถึงได้เฉพาะข้อมูลตัวเอง\n- Admin: เข้าถึงได้ทุกอย่าง\n- แต่ละ role ใช้ token ที่แตกต่างกัน",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "1"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "",
+      "type": "string",
+      "description": "JWT Token สำหรับ User ธรรมดา"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string",
+      "description": "JWT Token สำหรับ Admin"
+    },
+    {
+      "key": "admin_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "internal_api_key",
+      "value": "backend-test-internal-api-key-2024-secure",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔧 Setup - สร้าง Users",
+      "item": [
+        {
+          "name": "1️⃣ สร้าง User ธรรมดา",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('user_token', response.data.token);",
+                  "    pm.collectionVariables.set('user_id', response.data.user._id);",
+                  "    ",
+                  "    console.log('✅ สร้าง User ธรรมดาสำเร็จ');",
+                  "    console.log('📝 User ID:', response.data.user._id);",
+                  "    console.log('🎫 Token saved as: user_token');",
+                  "    ",
+                  "    pm.test('สร้าง User สำเร็จ', function() {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data.user.role).to.equal('user');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"normaluser\",\n  \"email\": \"user@example.com\",\n  \"password\": \"User123!\",\n  \"firstName\": \"สมชาย\",\n  \"lastName\": \"ใจดี\",\n  \"profile\": {\n    \"phone\": \"0812345678\",\n    \"address\": \"กรุงเทพฯ\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "สร้าง User ธรรมดา (role: user)\n\nToken จะถูก save เป็น 'user_token'"
+          },
+          "response": []
+        },
+        {
+          "name": "2️⃣ สร้าง Admin User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    // Save เป็น admin_id แต่ยังไม่ใช่ admin (ต้องเปลี่ยนใน database ก่อน)",
+                  "    pm.collectionVariables.set('admin_id', response.data.user._id);",
+                  "    ",
+                  "    console.log('✅ สร้าง Admin User สำเร็จ');",
+                  "    console.log('📝 Admin ID:', response.data.user._id);",
+                  "    console.log('⚠️  ต้องเปลี่ยน role เป็น admin ใน MongoDB ก่อน!');",
+                  "    console.log('');",
+                  "    console.log('🔧 วิธีเปลี่ยน role:');",
+                  "    console.log('mongosh');",
+                  "    console.log('use backend_test');",
+                  "    console.log('db.users.updateOne({ email: \"admin@example.com\" }, { $set: { role: \"admin\" } })');",
+                  "    ",
+                  "    pm.test('สร้าง Admin User สำเร็จ', function() {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"Admin123!\",\n  \"firstName\": \"ผู้ดูแล\",\n  \"lastName\": \"ระบบ\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "สร้าง Admin User\n\n⚠️ หลังจากสร้างแล้ว ต้องเปลี่ยน role เป็น 'admin' ใน MongoDB:\n\n```javascript\nmongosh\nuse backend_test\ndb.users.updateOne(\n  { email: 'admin@example.com' },\n  { $set: { role: 'admin' } }\n)\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "3️⃣ Helper - เปลี่ยน User เป็น Admin",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "⚠️ Endpoint นี้เป็นตัวอย่างเท่านั้น\n\nวิธีเปลี่ยน role เป็น admin:\n\n**ใน MongoDB:**\n```bash\nmongosh\nuse backend_test\ndb.users.updateOne(\n  { email: 'admin@example.com' },\n  { $set: { role: 'admin' } }\n)\n```\n\n**ใน MongoDB Compass:**\n1. เชื่อมต่อ mongodb://172.105.118.30:27017\n2. เลือก database: backend_test\n3. เลือก collection: users\n4. หา user ที่ email = admin@example.com\n5. แก้ไข role จาก 'user' เป็น 'admin'\n6. Save"
+          },
+          "response": []
+        }
+      ],
+      "description": "สร้าง Users ก่อนเริ่มทดสอบ (User ธรรมดา + Admin)"
+    },
+    {
+      "name": "🔐 Login - เข้าสู่ระบบ",
+      "item": [
+        {
+          "name": "Login as User ธรรมดา 👤",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('user_token', response.data.token);",
+                  "    pm.collectionVariables.set('user_id', response.data.user._id);",
+                  "    ",
+                  "    console.log('✅ Login เป็น USER ธรรมดา สำเร็จ');",
+                  "    console.log('👤 Role:', response.data.user.role);",
+                  "    console.log('📝 User ID:', response.data.user._id);",
+                  "    console.log('🎫 Token saved as: user_token');",
+                  "    console.log('');",
+                  "    console.log('💡 User ธรรมดาสามารถ:');",
+                  "    console.log('   ✅ ดูข้อมูลตัวเอง');",
+                  "    console.log('   ✅ แก้ไขข้อมูลตัวเอง');",
+                  "    console.log('   ✅ ดูราคา crypto');",
+                  "    console.log('   ✅ ดู dashboard ของตัวเอง');",
+                  "    console.log('   ❌ ดูข้อมูล users ทั้งหมด (Admin เท่านั้น)');",
+                  "    console.log('   ❌ ลบ users คนอื่น (Admin เท่านั้น)');",
+                  "    ",
+                  "    pm.test('Login สำเร็จ', function() {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data.user.role).to.equal('user');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"User123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login เป็น User ธรรมดา\n\n**Credentials:**\n- Email: user@example.com\n- Password: User123!\n- Role: user\n\n**Permissions:**\n- ✅ ดูข้อมูลตัวเอง\n- ✅ แก้ไขข้อมูลตัวเอง\n- ✅ ดู crypto prices\n- ✅ ดู dashboard ของตัวเอง\n- ❌ ดู users ทั้งหมด\n- ❌ ลบ users อื่น"
+          },
+          "response": []
+        },
+        {
+          "name": "Login as Admin 👑",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('admin_token', response.data.token);",
+                  "    pm.collectionVariables.set('admin_id', response.data.user._id);",
+                  "    ",
+                  "    console.log('✅ Login เป็น ADMIN สำเร็จ');",
+                  "    console.log('👑 Role:', response.data.user.role);",
+                  "    console.log('📝 Admin ID:', response.data.user._id);",
+                  "    console.log('🎫 Token saved as: admin_token');",
+                  "    console.log('');",
+                  "    console.log('💡 Admin สามารถ:');",
+                  "    console.log('   ✅ ทำได้ทุกอย่างที่ User ทำได้');",
+                  "    console.log('   ✅ ดูข้อมูล users ทั้งหมด');",
+                  "    console.log('   ✅ แก้ไขข้อมูล users คนอื่น');",
+                  "    console.log('   ✅ ลบ users');",
+                  "    console.log('   ✅ ระงับ/เปิดใช้บัญชี users');",
+                  "    console.log('   ✅ ดู Admin Dashboard');",
+                  "    ",
+                  "    pm.test('Login เป็น Admin สำเร็จ', function() {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data.user.role).to.equal('admin');",
+                  "    });",
+                  "} else {",
+                  "    console.log('❌ Login ไม่สำเร็จ');",
+                  "    console.log('⚠️  ตรวจสอบว่าเปลี่ยน role เป็น admin ใน MongoDB แล้วหรือยัง');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login เป็น Admin\n\n**Credentials:**\n- Email: admin@example.com\n- Password: Admin123!\n- Role: admin ⚠️ ต้องเปลี่ยนใน MongoDB ก่อน\n\n**วิธีเปลี่ยน role เป็น admin:**\n```bash\nmongosh\nuse backend_test\ndb.users.updateOne(\n  { email: 'admin@example.com' },\n  { $set: { role: 'admin' } }\n)\n```\n\n**Permissions:**\n- ✅ เข้าถึงได้ทุกอย่าง\n- ✅ จัดการ users ทั้งหมด\n- ✅ Admin Dashboard"
+          },
+          "response": []
+        }
+      ],
+      "description": "เริ่มต้นก่อน: สร้าง User ธรรมดา และ Admin User"
+    },
+    {
+      "name": "👤 User Endpoints (ใช้ user_token)",
+      "item": [
+        {
+          "name": "✅ Get Me - ดูข้อมูลตัวเอง",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "✅ User ธรรมดาสามารถดูข้อมูลตัวเองได้\n\nใช้ user_token"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Update Own Profile - แก้ไขข้อมูลตัวเอง",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"สมชาย (แก้ไขแล้ว)\",\n  \"profile\": {\n    \"phone\": \"0898765432\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            },
+            "description": "✅ User สามารถแก้ไขข้อมูลตัวเองได้\n\nใช้ user_token"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ View User Dashboard",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "dashboard"]
+            },
+            "description": "✅ User สามารถดู dashboard ของตัวเองได้\n\nแสดง:\n- ข้อมูลผู้ใช้\n- ราคา crypto\n- การเทรดของตัวเอง"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Get All Users - ไม่มีสิทธิ์ (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('User ธรรมดาไม่สามารถดู users ทั้งหมดได้', function() {",
+                  "    pm.expect(pm.response.code).to.equal(403);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.false;",
+                  "    console.log('❌ ถูกต้อง: User ธรรมดาไม่มีสิทธิ์เข้าถึง');",
+                  "    console.log('📋 Message:', response.message);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            },
+            "description": "❌ User ธรรมดาไม่สามารถดูข้อมูล users ทั้งหมดได้\n\nจะได้ status 403 Forbidden\n\nMessage: 'คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้'"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Delete User - ไม่มีสิทธิ์ (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('User ธรรมดาไม่สามารถลบ users ได้', function() {",
+                  "    pm.expect(pm.response.code).to.equal(403);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.false;",
+                  "    console.log('❌ ถูกต้อง: User ธรรมดาไม่มีสิทธิ์ลบ');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{admin_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{admin_id}}"]
+            },
+            "description": "❌ User ธรรมดาไม่สามารถลบ users คนอื่นได้\n\nจะได้ status 403 Forbidden"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Admin Dashboard - ไม่มีสิทธิ์ (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('User ธรรมดาไม่สามารถดู Admin Dashboard', function() {",
+                  "    pm.expect(pm.response.code).to.equal(403);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.false;",
+                  "    console.log('❌ ถูกต้อง: ต้องเป็น Admin เท่านั้น');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard/admin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "dashboard", "admin"]
+            },
+            "description": "❌ User ธรรมดาไม่สามารถดู Admin Dashboard ได้\n\nจะได้ status 403 Forbidden"
+          },
+          "response": []
+        }
+      ],
+      "description": "ทดสอบ endpoints ด้วย User token ธรรมดา (มีข้อจำกัด)"
+    },
+    {
+      "name": "👑 Admin Endpoints (ใช้ admin_token)",
+      "item": [
+        {
+          "name": "✅ Get All Users - ดูข้อมูลทั้งหมด",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    console.log('✅ Admin ดูข้อมูล users ทั้งหมดได้');",
+                  "    console.log('📊 จำนวน users:', response.data.length);",
+                  "    console.log('📄 Total:', response.pagination.total);",
+                  "    ",
+                  "    pm.test('Admin เข้าถึงได้', function() {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data).to.be.an('array');",
+                  "    });",
+                  "} else if (pm.response.code === 403) {",
+                  "    console.log('❌ Token ไม่ใช่ Admin');",
+                  "    console.log('⚠️  ตรวจสอบว่า login ด้วย admin account แล้วหรือยัง');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "✅ Admin สามารถดูข้อมูล users ทั้งหมดได้\n\n⚠️ ถ้าได้ 403 แสดงว่า:\n- ยังไม่ได้เปลี่ยน role เป็น admin\n- หรือ login ด้วย user ธรรมดา"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Update Other User - แก้ไขข้อมูลคนอื่น",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    console.log('✅ Admin แก้ไขข้อมูล user คนอื่นได้');",
+                  "    pm.test('Admin แก้ไขได้', function() {",
+                  "        pm.expect(pm.response.json().success).to.be.true;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"แก้ไขโดย Admin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            },
+            "description": "✅ Admin สามารถแก้ไขข้อมูล users คนอื่นได้"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Toggle User Status - ระงับ/เปิดใช้",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}/toggle-status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}", "toggle-status"]
+            },
+            "description": "✅ Admin สามารถระงับ/เปิดใช้บัญชี users ได้"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Admin Dashboard - สถิติทั้งหมด",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    console.log('✅ Admin Dashboard');",
+                  "    console.log('👥 Total Users:', response.data.stats.users.total);",
+                  "    console.log('📊 Total Trades:', response.data.stats.trades.total);",
+                  "    ",
+                  "    pm.test('Admin Dashboard accessible', function() {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data.stats).to.have.property('users');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard/admin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "dashboard", "admin"]
+            },
+            "description": "✅ Admin สามารถดู Admin Dashboard ได้\n\nแสดงสถิติ:\n- Users (total, active, admins)\n- Trades (total, pending, completed)\n- Crypto data"
+          },
+          "response": []
+        },
+        {
+          "name": "✅ Delete User - ลบ users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            },
+            "description": "✅ Admin สามารถลบ users ได้\n\n⚠️ ไม่สามารถลบตัวเองได้"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints ที่ต้องใช้ Admin token (มีสิทธิ์เต็ม)"
+    },
+    {
+      "name": "🧪 Permission Tests - ทดสอบสิทธิ์",
+      "item": [
+        {
+          "name": "Test 1: User ดู users ทั้งหมด (ควรได้ 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('User token ไม่สามารถเข้าถึง admin endpoint', function() {",
+                  "    pm.expect(pm.response.code).to.equal(403);",
+                  "    ",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.false;",
+                  "    pm.expect(response.message).to.include('ไม่มีสิทธิ์');",
+                  "    ",
+                  "    console.log('✅ Test ผ่าน: User token ถูก reject');",
+                  "    console.log('📋 Error Message:', response.message);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            },
+            "description": "🧪 ทดสอบ: User ธรรมดาพยายามดู users ทั้งหมด\n\n**Expected:** 403 Forbidden\n**Message:** คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้"
+          },
+          "response": []
+        },
+        {
+          "name": "Test 2: Admin ดู users ทั้งหมด (ควรได้ 200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    console.log('✅ Test ผ่าน: Admin token เข้าถึงได้');",
+                  "    const response = pm.response.json();",
+                  "    console.log('📊 จำนวน users:', response.data.length);",
+                  "    ",
+                  "    pm.test('Admin token สามารถเข้าถึง admin endpoint', function() {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data).to.be.an('array');",
+                  "    });",
+                  "} else if (pm.response.code === 403) {",
+                  "    console.log('❌ Test ไม่ผ่าน: ยังไม่ใช่ Admin');",
+                  "    console.log('⚠️  ต้องเปลี่ยน role เป็น admin ก่อน');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            },
+            "description": "🧪 ทดสอบ: Admin พยายามดู users ทั้งหมด\n\n**Expected:** 200 OK (ถ้าเป็น admin แล้ว)\n**Expected:** 403 Forbidden (ถ้ายังไม่ได้เปลี่ยน role)"
+          },
+          "response": []
+        },
+        {
+          "name": "Test 3: User แก้ไขข้อมูลคนอื่น (ควรได้ 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('User ไม่สามารถแก้ไขข้อมูลคนอื่น', function() {",
+                  "    pm.expect(pm.response.code).to.equal(403);",
+                  "    console.log('✅ Test ผ่าน: User ถูก reject');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"พยายาม hack\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{admin_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{admin_id}}"]
+            },
+            "description": "🧪 ทดสอบ: User พยายามแก้ไขข้อมูล user คนอื่น\n\n**Expected:** 403 Forbidden"
+          },
+          "response": []
+        },
+        {
+          "name": "Test 4: Admin แก้ไขข้อมูลคนอื่น (ควรได้ 200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    console.log('✅ Test ผ่าน: Admin แก้ไขได้');",
+                  "    pm.test('Admin แก้ไขข้อมูลคนอื่นได้', function() {",
+                  "        pm.expect(pm.response.json().success).to.be.true;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"แก้ไขโดย Admin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            },
+            "description": "🧪 ทดสอบ: Admin แก้ไขข้อมูล user คนอื่น\n\n**Expected:** 200 OK"
+          },
+          "response": []
+        },
+        {
+          "name": "Test 5: เปรียบเทียบ User vs Admin Dashboard",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "console.log('🔍 กำลังทดสอบ Dashboard access...');",
+                  "console.log('');",
+                  "console.log('จะทดสอบทั้ง 2 tokens:');",
+                  "console.log('1. user_token → /api/dashboard (ควรได้ 200)');",
+                  "console.log('2. user_token → /api/dashboard/admin (ควรได้ 403)');",
+                  "console.log('3. admin_token → /api/dashboard/admin (ควรได้ 200)');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "dashboard"]
+            },
+            "description": "🧪 ทดสอบเปรียบเทียบการเข้าถึง Dashboard\n\nเปลี่ยน token เพื่อทดสอบ:\n- user_token → /api/dashboard ✅\n- user_token → /api/dashboard/admin ❌\n- admin_token → /api/dashboard/admin ✅"
+          },
+          "response": []
+        }
+      ],
+      "description": "ทดสอบการทำงานของ Role-Based Access Control (RBAC)"
+    },
+    {
+      "name": "💹 Crypto Price APIs",
+      "item": [
+        {
+          "name": "Get BTC Price - ราคา Bitcoin",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/crypto/price/BTCUSDT",
+              "host": ["{{base_url}}"],
+              "path": ["api", "crypto", "price", "BTCUSDT"]
+            },
+            "description": "ดึงราคา Bitcoin real-time จาก Binance\n\n✅ Public endpoint (ไม่ต้อง login)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Crypto Prices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/crypto/prices",
+              "host": ["{{base_url}}"],
+              "path": ["api", "crypto", "prices"]
+            },
+            "description": "ดึงราคาสกุลเงินดิจิทัลทั้งหมด"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Price History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/crypto/history/BTCUSDT?limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "crypto", "history", "BTCUSDT"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "ดึงประวัติราคา Bitcoin"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Stats 24h",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/crypto/stats/BTCUSDT?period=24h",
+              "host": ["{{base_url}}"],
+              "path": ["api", "crypto", "stats", "BTCUSDT"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "24h"
+                }
+              ]
+            },
+            "description": "สถิติราคา 24 ชั่วโมง"
+          },
+          "response": []
+        }
+      ],
+      "description": "Crypto Price APIs (Public - ไม่ต้อง login)"
+    },
+    {
+      "name": "🔒 Internal API",
+      "item": [
+        {
+          "name": "✅ With Valid API Key",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{internal_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/internal/crypto/price/BTCUSDT",
+              "host": ["{{base_url}}"],
+              "path": ["api", "internal", "crypto", "price", "BTCUSDT"]
+            },
+            "description": "✅ Internal API ด้วย API Key ที่ถูกต้อง\n\nควรได้ 200 OK"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Without API Key (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('ไม่มี API Key ควรได้ 401', function() {",
+                  "    pm.expect(pm.response.code).to.equal(401);",
+                  "    console.log('✅ ถูกต้อง: ถูก reject เพราะไม่มี API Key');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/internal/crypto/price/BTCUSDT",
+              "host": ["{{base_url}}"],
+              "path": ["api", "internal", "crypto", "price", "BTCUSDT"]
+            },
+            "description": "❌ ไม่มี API Key\n\nควรได้ 401 Unauthorized"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ With Invalid API Key (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('API Key ผิดควรได้ 403', function() {",
+                  "    pm.expect(pm.response.code).to.equal(403);",
+                  "    console.log('✅ ถูกต้อง: API Key ไม่ถูกต้อง');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "invalid-key",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/internal/crypto/price/BTCUSDT",
+              "host": ["{{base_url}}"],
+              "path": ["api", "internal", "crypto", "price", "BTCUSDT"]
+            },
+            "description": "❌ API Key ไม่ถูกต้อง\n\nควรได้ 403 Forbidden"
+          },
+          "response": []
+        }
+      ],
+      "description": "Internal API - ใช้ API Key authentication"
+    },
+    {
+      "name": "📖 Complete Workflow Examples",
+      "item": [
+        {
+          "name": "Workflow 1: User ธรรมดา",
+          "item": [
+            {
+              "name": "Step 1: Register User",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    const response = pm.response.json();",
+                      "    pm.collectionVariables.set('user_token', response.data.token);",
+                      "    pm.collectionVariables.set('user_id', response.data.user._id);",
+                      "    console.log('✅ Step 1: สร้าง User สำเร็จ');",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"workflow_user\",\n  \"email\": \"workflow.user@example.com\",\n  \"password\": \"User123!\",\n  \"firstName\": \"Workflow\",\n  \"lastName\": \"User\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/auth/register",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "auth", "register"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Step 2: Get My Info",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{user_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/me",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "auth", "me"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Step 3: View Dashboard",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{user_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/dashboard",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "dashboard"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Step 4: Try Admin Endpoint (ควรไม่ได้)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('User ไม่สามารถเข้าถึง Admin endpoint', function() {",
+                      "    pm.expect(pm.response.code).to.equal(403);",
+                      "    console.log('✅ ถูกต้อง: User ถูก block');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{user_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/users",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "users"]
+                },
+                "description": "พยายามเข้าถึง Admin endpoint → ควรได้ 403"
+              },
+              "response": []
+            }
+          ],
+          "description": "Workflow สำหรับ User ธรรมดา (มีข้อจำกัด)"
+        },
+        {
+          "name": "Workflow 2: Admin",
+          "item": [
+            {
+              "name": "Step 1: Login as Admin",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "    const response = pm.response.json();",
+                      "    pm.collectionVariables.set('admin_token', response.data.token);",
+                      "    pm.collectionVariables.set('admin_id', response.data.user._id);",
+                      "    console.log('✅ Step 1: Login เป็น Admin สำเร็จ');",
+                      "    console.log('👑 Role:', response.data.user.role);",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Admin123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "auth", "login"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Step 2: Get All Users",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "    console.log('✅ Step 2: Admin ดู users ทั้งหมดได้');",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/users",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "users"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Step 3: Admin Dashboard",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "    console.log('✅ Step 3: Admin Dashboard accessible');",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/dashboard/admin",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "dashboard", "admin"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Step 4: Manage Users",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/users/{{user_id}}/toggle-status",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "users", "{{user_id}}", "toggle-status"]
+                },
+                "description": "Admin จัดการ users (Toggle status)"
+              },
+              "response": []
+            }
+          ],
+          "description": "Workflow สำหรับ Admin (เข้าถึงได้ทุกอย่าง)"
+        }
+      ],
+      "description": "Workflow Examples แสดงการใช้งานจริง"
+    },
+    {
+      "name": "🏠 Basic Endpoints",
+      "item": [
+        {
+          "name": "Homepage",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API Documentation (Swagger)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api-docs",
+              "host": ["{{base_url}}"],
+              "path": ["api-docs"]
+            },
+            "description": "เปิดใน browser: http://localhost:4000/api-docs"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// แสดงข้อมูล request",
+          "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+          "console.log('📤 Request:', pm.request.method, pm.request.url.toString());",
+          "",
+          "// แสดง token ที่ใช้ (ถ้ามี)",
+          "const auth = pm.request.auth;",
+          "if (auth && auth.type === 'bearer') {",
+          "    const token = auth.bearer.find(b => b.key === 'token')?.value || '';",
+          "    if (token) {",
+          "        if (token === pm.collectionVariables.get('user_token')) {",
+          "            console.log('🎫 Token: user_token (👤 User ธรรมดา)');",
+          "        } else if (token === pm.collectionVariables.get('admin_token')) {",
+          "            console.log('🎫 Token: admin_token (👑 Admin)');",
+          "        } else {",
+          "            console.log('🎫 Token: custom token');",
+          "        }",
+          "    }",
+          "}",
+          "",
+          "// แสดง API Key (ถ้ามี)",
+          "const apiKeyHeader = pm.request.headers.find(h => h.key === 'x-api-key');",
+          "if (apiKeyHeader) {",
+          "    console.log('🔑 API Key:', apiKeyHeader.value === pm.collectionVariables.get('internal_api_key') ? '✅ Valid' : '❌ Invalid');",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// แสดงผลลัพธ์",
+          "const statusEmoji = pm.response.code < 300 ? '✅' : pm.response.code < 400 ? '⚠️' : '❌';",
+          "console.log('📥 Response:', statusEmoji, pm.response.code, pm.response.status);",
+          "console.log('⏱️  Time:', pm.response.responseTime + 'ms');",
+          "",
+          "// แสดง error message (ถ้ามี)",
+          "if (pm.response.code >= 400) {",
+          "    try {",
+          "        const response = pm.response.json();",
+          "        if (response.message) {",
+          "            console.log('💬 Message:', response.message);",
+          "        }",
+          "    } catch (e) {}",
+          "}",
+          "console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+          "console.log('');",
+          "",
+          "// Test response time",
+          "pm.test('Response time < 5 วินาที', function() {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "// Test JSON format",
+          "if (pm.response.headers.get('Content-Type')?.includes('application/json')) {",
+          "    pm.test('Response เป็น JSON', function() {",
+          "        pm.response.to.be.json;",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}
