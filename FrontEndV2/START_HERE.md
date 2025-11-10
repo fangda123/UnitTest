@@ -204,7 +204,7 @@ npm start
 ### 2. สร้าง .env.local:
 ```bash
 cd /Users/js/Desktop/UnitTest/FrontEndV2
-echo "VITE_API_URL=http://localhost:4000" > .env.local
+echo "VITE_API_URL=http://localhost:1111" > .env.local
 ```
 
 ### 3. ใช้ Real API:

@@ -74,8 +74,12 @@ export function useWebSocket(options: UseWebSocketOptions) {
 
       ws.current.onmessage = (event) => {
         try {
-          const message: WebSocketMessage = JSON.parse(event.data);
-          console.log('📨 รับข้อความ WebSocket:', message);
+          const rawData = event.data;
+          const message: WebSocketMessage = JSON.parse(rawData);
+          console.log('📨 รับข้อความ WebSocket (Raw):', rawData);
+          console.log('📨 รับข้อความ WebSocket (Parsed):', message);
+          console.log('📨 Message Type:', message.type);
+          console.log('📨 Message Data:', message.data);
           
           setLastMessage(message);
 
@@ -83,7 +87,7 @@ export function useWebSocket(options: UseWebSocketOptions) {
             onMessage(message);
           }
         } catch (error) {
-          console.error('❌ Error parsing WebSocket message:', error);
+          console.error('❌ Error parsing WebSocket message:', error, 'Raw data:', event.data);
         }
       };
 

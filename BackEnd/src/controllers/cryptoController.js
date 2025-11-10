@@ -1,6 +1,59 @@
 const CryptoPrice = require('../models/CryptoPrice');
 const { getCache, setCache } = require('../config/redis');
+const axios = require('axios');
 const logger = require('../utils/logger');
+
+/**
+ * @desc    ดึงรายการ symbols ทั้งหมดจาก Binance
+ * @route   GET /api/crypto/symbols
+ * @access  Public
+ */
+const getAllSymbols = async (req, res, next) => {
+  try {
+    const cacheKey = 'crypto:symbols:all';
+    
+    // ลองดึงจาก cache ก่อน
+    const cachedData = await getCache(cacheKey);
+    if (cachedData) {
+      logger.info('ดึงรายการ symbols จาก cache');
+      return res.json({
+        success: true,
+        data: cachedData,
+        cached: true,
+      });
+    }
+
+    // ดึงจาก Binance API
+    const apiUrl = process.env.BINANCE_API_URL || 'https://api.binance.com';
+    const response = await axios.get(`${apiUrl}/api/v3/exchangeInfo`, {
+      timeout: 10000,
+    });
+
+    // กรองเฉพาะ USDT pairs
+    const usdtPairs = response.data.symbols
+      .filter((symbol) => symbol.symbol.endsWith('USDT') && symbol.status === 'TRADING')
+      .map((symbol) => ({
+        symbol: symbol.symbol,
+        baseAsset: symbol.baseAsset,
+        quoteAsset: symbol.quoteAsset,
+        status: symbol.status,
+      }))
+      .sort((a, b) => a.symbol.localeCompare(b.symbol));
+
+    // เก็บใน cache (TTL 1 ชั่วโมง)
+    await setCache(cacheKey, usdtPairs, 3600);
+
+    res.json({
+      success: true,
+      data: usdtPairs,
+      count: usdtPairs.length,
+      cached: false,
+    });
+  } catch (error) {
+    logger.error('❌ ไม่สามารถดึงรายการ symbols:', error.message);
+    next(error);
+  }
+};
 
 /**
  * @desc    ดึงข้อมูลราคา crypto ล่าสุด
@@ -88,6 +141,7 @@ const getAllCryptoPrices = async (req, res, next) => {
     res.json({
       success: true,
       data: prices,
+      count: prices.length,
       cached: false,
     });
   } catch (error) {
@@ -194,9 +248,9 @@ const getCryptoStats = async (req, res, next) => {
 };
 
 module.exports = {
+  getAllSymbols,
   getCryptoPrice,
   getAllCryptoPrices,
   getCryptoPriceHistory,
   getCryptoStats,
 };
-

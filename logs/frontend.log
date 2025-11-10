@@ -1,0 +1,24 @@
+
+> frontend-dashboard-test@1.0.0 dev
+> vite
+
+
+  VITE v5.4.21  ready in 265 ms
+
+  ➜  Local:   http://localhost:1112/
+  ➜  Network: use --host to expose
+3:27:29 PM [vite] vite.config.ts changed, restarting server...
+3:27:29 PM [vite] vite.config.ts changed, restarting server...
+Port 3000 is in use, trying another one...
+3:27:30 PM [vite] server restarted.
+
+  ➜  Local:   http://localhost:3001/
+  ➜  Network: use --host to expose
+
+  ➜  Local:   http://localhost:3001/
+  ➜  Network: use --host to expose
+3:27:31 PM [vite] vite.config.ts changed, restarting server...
+3:27:31 PM [vite] server restarted.
+
+  ➜  Local:   http://localhost:1112/
+  ➜  Network: use --host to expose

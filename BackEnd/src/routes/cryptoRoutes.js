@@ -1,5 +1,6 @@
 const express = require('express');
 const {
+  getAllSymbols,
   getCryptoPrice,
   getAllCryptoPrices,
   getCryptoPriceHistory,
@@ -13,6 +14,11 @@ const router = express.Router();
  * Crypto Price Routes
  * เส้นทางสำหรับดึงข้อมูลราคาสกุลเงินดิจิทัล
  */
+
+// @route   GET /api/crypto/symbols
+// @desc    ดึงรายการ symbols ทั้งหมดจาก Binance
+// @access  Public
+router.get('/symbols', getAllSymbols);
 
 // @route   GET /api/crypto/prices
 // @desc    ดึงข้อมูลราคา crypto ทั้งหมด

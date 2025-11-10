@@ -4,6 +4,7 @@ const userRoutes = require('./userRoutes');
 const cryptoRoutes = require('./cryptoRoutes');
 const dashboardRoutes = require('./dashboardRoutes');
 const internalRoutes = require('./internalRoutes');
+const aggregationRoutes = require('./aggregationRoutes');
 
 const router = express.Router();
 
@@ -28,6 +29,7 @@ router.use('/users', userRoutes);
 router.use('/crypto', cryptoRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/internal', internalRoutes);
+router.use('/aggregation', aggregationRoutes);
 
 module.exports = router;
 

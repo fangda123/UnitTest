@@ -36,7 +36,7 @@ cd /Users/js/Desktop/UnitTest/FrontEndV2
 
 # สร้างไฟล์ .env.local
 cat > .env.local << 'EOF'
-VITE_API_URL=http://localhost:4000
+VITE_API_URL=http://localhost:1111
 EOF
 ```
 

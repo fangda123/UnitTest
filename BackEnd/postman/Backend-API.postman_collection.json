@@ -8,7 +8,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:4000",
+      "value": "http://localhost:1111",
       "type": "string"
     },
     {
@@ -1380,7 +1380,7 @@
               "host": ["{{base_url}}"],
               "path": ["api-docs"]
             },
-            "description": "เปิดใน browser: http://localhost:4000/api-docs"
+            "description": "เปิดใน browser: http://localhost:1111/api-docs"
           },
           "response": []
         }

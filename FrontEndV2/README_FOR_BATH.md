@@ -463,7 +463,7 @@ Password: Admin123!
 ### 1. สร้าง Test Users
 ```bash
 # ใช้ Postman หรือ cURL
-curl -X POST http://localhost:4000/api/auth/register \
+curl -X POST http://localhost:1111/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
@@ -477,7 +477,7 @@ curl -X POST http://localhost:4000/api/auth/register \
 ### 2. เชื่อมต่อ Backend
 ```bash
 # สร้างไฟล์ .env.local
-echo "VITE_API_URL=http://localhost:4000" > .env.local
+echo "VITE_API_URL=http://localhost:1111" > .env.local
 ```
 
 ### 3. ดู Logs

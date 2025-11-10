@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useWebSocket } from '../hooks/useWebSocket';
 import { cryptoAPI } from '../services/api';
 import { RefreshCw, TrendingUp, TrendingDown, Search, Zap } from 'lucide-react';
 import LineChart from '../components/Charts/LineChart';
 import RealtimePriceCard from '../components/Crypto/RealtimePriceCard';
+
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:1111/ws';
 
 /**
  * หน้า Crypto Prices
@@ -29,6 +32,9 @@ function CryptoPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [previousPrices, setPreviousPrices] = useState<Map<string, number>>(new Map());
+  const [priceAnimations, setPriceAnimations] = useState<Map<string, 'up' | 'down' | null>>(new Map());
+  const token = localStorage.getItem('auth_token');
 
   useEffect(() => {
     fetchAllData();
@@ -56,13 +62,143 @@ function CryptoPage() {
     if (!silent) setRefreshing(true);
     try {
       const response = await cryptoAPI.getAll();
-      setPrices(response.data.data || []);
+      const newPrices = response.data.data || [];
+      
+      // ตรวจสอบการเปลี่ยนแปลงราคาและตั้งค่า animation
+      const newAnimations = new Map<string, 'up' | 'down' | null>();
+      newPrices.forEach((crypto: any) => {
+        const prevPrice = previousPrices.get(crypto.symbol);
+        if (prevPrice && prevPrice !== crypto.price) {
+          const direction = crypto.price > prevPrice ? 'up' : 'down';
+          newAnimations.set(crypto.symbol, direction);
+          
+          // ลบ animation หลังจาก 500ms
+          setTimeout(() => {
+            setPriceAnimations((prev) => {
+              const updated = new Map(prev);
+              updated.delete(crypto.symbol);
+              return updated;
+            });
+          }, 500);
+        }
+      });
+      
+      // อัพเดท previous prices
+      const newPreviousPrices = new Map<string, number>();
+      newPrices.forEach((crypto: any) => {
+        newPreviousPrices.set(crypto.symbol, crypto.price);
+      });
+      setPreviousPrices(newPreviousPrices);
+      setPriceAnimations(newAnimations);
+      setPrices(newPrices);
     } catch (error) {
       console.error('Error fetching prices:', error);
     } finally {
       if (!silent) setRefreshing(false);
     }
   };
+
+  // อัพเดทราคาเฉพาะ symbol ที่เปลี่ยน (ทันทีจาก WebSocket)
+  const updatePriceImmediately = useCallback((priceData: any) => {
+    if (!priceData || !priceData.symbol) return;
+    
+    setPrices((prevPrices) => {
+      const updatedPrices = prevPrices.map((crypto: any) => {
+        if (crypto.symbol === priceData.symbol) {
+          const prevPrice = crypto.price;
+          const newPrice = priceData.price;
+          
+          // ตั้งค่า animation
+          if (prevPrice && prevPrice !== newPrice) {
+            const direction = newPrice > prevPrice ? 'up' : 'down';
+            setPriceAnimations((prev) => {
+              const updated = new Map(prev);
+              updated.set(priceData.symbol, direction);
+              return updated;
+            });
+            
+            // ลบ animation หลังจาก 500ms
+            setTimeout(() => {
+              setPriceAnimations((prev) => {
+                const updated = new Map(prev);
+                updated.delete(priceData.symbol);
+                return updated;
+              });
+            }, 500);
+          }
+          
+          // อัพเดทข้อมูล
+          return {
+            ...crypto,
+            price: newPrice,
+            high24h: priceData.highPrice24h || crypto.high24h,
+            low24h: priceData.lowPrice24h || crypto.low24h,
+            volume24h: priceData.volume24h || crypto.volume24h,
+            priceChangePercent: priceData.priceChangePercent24h || crypto.priceChangePercent,
+            priceChangePercent24h: priceData.priceChangePercent24h || crypto.priceChangePercent24h,
+            lastUpdate: priceData.lastUpdate || new Date().toISOString(),
+          };
+        }
+        return crypto;
+      });
+      
+      // ถ้ายังไม่มี symbol นี้ในรายการ ให้เพิ่มเข้าไป
+      const exists = updatedPrices.some((c: any) => c.symbol === priceData.symbol);
+      if (!exists && priceData.symbol) {
+        updatedPrices.push({
+          symbol: priceData.symbol,
+          price: priceData.price,
+          priceChange: 0,
+          priceChangePercent: priceData.priceChangePercent24h || 0,
+          priceChangePercent24h: priceData.priceChangePercent24h || 0,
+          high24h: priceData.highPrice24h,
+          low24h: priceData.lowPrice24h,
+          volume24h: priceData.volume24h,
+          lastUpdate: priceData.lastUpdate || new Date().toISOString(),
+        });
+      }
+      
+      return updatedPrices;
+    });
+    
+    // อัพเดท previous price
+    setPreviousPrices((prev) => {
+      const updated = new Map(prev);
+      updated.set(priceData.symbol, priceData.price);
+      return updated;
+    });
+    
+    // อัพเดท stats ถ้าเป็น selected crypto
+    if (priceData.symbol === selectedCrypto) {
+      setStats24h((prev: any) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          price: priceData.price,
+          high24h: priceData.highPrice24h || prev.high24h,
+          low24h: priceData.lowPrice24h || prev.low24h,
+          volume24h: priceData.volume24h || prev.volume24h,
+          priceChangePercent: priceData.priceChangePercent24h || prev.priceChangePercent,
+        };
+      });
+    }
+  }, [selectedCrypto]);
+
+  // เชื่อมต่อ Backend WebSocket
+  const { isConnected } = useWebSocket({
+    url: WS_URL,
+    token: token || undefined,
+    onMessage: (message) => {
+      // อัพเดทราคาทันทีเมื่อได้รับ notification
+      if (message.type === 'crypto.price.update' && message.data) {
+        updatePriceImmediately(message.data);
+      }
+    },
+    onConnected: () => {
+      console.log('✅ CryptoPage: เชื่อมต่อ Backend WebSocket สำเร็จ');
+    },
+    autoReconnect: true,
+  });
 
   const fetchHistory = async () => {
     try {
@@ -126,19 +262,76 @@ function CryptoPage() {
         </button>
       </div>
 
-      {/* Live Prices - WebSocket */}
+      {/* Live Prices - API (ไม่ใช้ WebSocket เพื่อลด connections) */}
       <div className="mb-6">
         <h2 className="text-xl font-bold text-gray-100 mb-4 flex items-center gap-2">
-          <span className="w-2 h-2 bg-success rounded-full animate-pulse"></span>
-          Live Prices (WebSocket)
+          <Zap className="w-5 h-5 text-warning animate-pulse" />
+          Live Prices
+          <span className="text-sm text-gray-500 font-normal flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full animate-pulse ${
+              isConnected ? 'bg-success' : 'bg-danger'
+            }`}></span>
+            {prices.length} Cryptocurrencies
+            {isConnected && (
+              <span className="text-xs text-success font-semibold ml-2">
+                ⚡ Real-time Active
+              </span>
+            )}
+          </span>
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          <RealtimePriceCard symbol="btcusdt" name="Bitcoin" />
-          <RealtimePriceCard symbol="ethusdt" name="Ethereum" />
-          <RealtimePriceCard symbol="bnbusdt" name="Binance Coin" />
-          <RealtimePriceCard symbol="solusdt" name="Solana" />
-          <RealtimePriceCard symbol="adausdt" name="Cardano" />
-          <RealtimePriceCard symbol="xrpusdt" name="Ripple" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 max-h-[600px] overflow-y-auto">
+          {prices.length > 0 ? (
+            prices.map((crypto, index) => {
+              const animation = priceAnimations.get(crypto.symbol);
+              const isPositive = (crypto.priceChangePercent24h || crypto.priceChangePercent || 0) >= 0;
+              return (
+                <div
+                  key={crypto.symbol}
+                  className={`bg-dark-800 rounded-lg p-4 border border-dark-700 hover:border-primary-500/50 transition-all animate-fade-in hover:scale-105 hover:shadow-lg ${
+                    animation === 'up' ? 'animate-price-up' : animation === 'down' ? 'animate-price-down' : ''
+                  }`}
+                  style={{ animationDelay: `${index * 0.03}s` }}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-100 flex items-center gap-2">
+                        {crypto.symbol.replace('USDT', '')}
+                        {isPositive ? (
+                          <TrendingUp className="w-4 h-4 text-success animate-pulse-slow" />
+                        ) : (
+                          <TrendingDown className="w-4 h-4 text-danger animate-pulse-slow" />
+                        )}
+                      </h3>
+                      <p className="text-sm text-gray-500">{crypto.symbol}</p>
+                    </div>
+                    <div className={`w-2 h-2 rounded-full ${isPositive ? 'bg-success' : 'bg-danger'} animate-pulse`}></div>
+                  </div>
+                  <div>
+                    <p className={`text-2xl font-bold text-gray-100 transition-all duration-300 ${
+                      animation === 'up' ? 'text-success scale-105' : animation === 'down' ? 'text-danger scale-105' : ''
+                    }`}>
+                      ${crypto.price?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 8 })}
+                      {animation && (
+                        <span className="ml-2 text-xs">
+                          {animation === 'up' ? '📈' : '📉'}
+                        </span>
+                      )}
+                    </p>
+                    <p className={`text-sm font-semibold flex items-center gap-1 ${isPositive ? 'text-success' : 'text-danger'}`}>
+                      <span className={isPositive ? 'animate-pulse-slow' : ''}>
+                        {isPositive ? '+' : ''}{(crypto.priceChangePercent24h || crypto.priceChangePercent || 0)?.toFixed(2)}%
+                      </span>
+                      <span className="text-gray-500">(24h)</span>
+                    </p>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="col-span-full text-center py-8 text-gray-400">
+              No cryptocurrencies available
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,0 +1,27 @@
+{
+  "name": "unit-test-project",
+  "version": "1.0.0",
+  "description": "Full-stack project with Backend, FrontEndV2, and FrontEnd",
+  "scripts": {
+    "start": "bash start.sh",
+    "stop": "bash stop.sh",
+    "start:backend": "cd BackEnd && npm start",
+    "start:frontendv2": "cd FrontEndV2 && npm run dev",
+    "start:frontend": "cd FrontEnd && npm run dev",
+    "install:all": "cd BackEnd && npm install && cd ../FrontEndV2 && npm install && cd ../FrontEnd && npm install",
+    "dev": "bash start.sh",
+    "git:push": "bash git-push.sh",
+    "deploy": "bash deploy.sh",
+    "deploy:win": "deploy.bat"
+  },
+  "keywords": [
+    "backend",
+    "frontend",
+    "fullstack",
+    "crypto",
+    "trading"
+  ],
+  "author": "",
+  "license": "ISC"
+}
+

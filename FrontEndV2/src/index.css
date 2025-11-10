@@ -48,6 +48,86 @@ body {
 }
   }
 
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-price-up {
+    animation: priceUp 0.5s ease-out;
+  }
+
+  @keyframes priceUp {
+    0% {
+      background-color: rgba(16, 185, 129, 0.2);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+
+  .animate-price-down {
+    animation: priceDown 0.5s ease-out;
+  }
+
+  @keyframes priceDown {
+    0% {
+      background-color: rgba(239, 68, 68, 0.2);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
   .gradient-border {
     position: relative;
     border-radius: 0.5rem;

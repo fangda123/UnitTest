@@ -6,7 +6,7 @@
 import axios, { type AxiosInstance } from 'axios';
 
 // Base URL - เปลี่ยนตามสภาพแวดล้อม
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:1111';
 
 // สร้าง axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -157,6 +157,9 @@ export interface CryptoQuery {
 }
 
 export const cryptoAPI = {
+  // ดึงรายการ symbols ทั้งหมดจาก Binance
+  getAllSymbols: () => apiClient.get('/api/crypto/symbols'),
+  
   // ดึงราคา crypto ทั้งหมด
   getAll: () => apiClient.get('/api/crypto/prices'),
   
@@ -171,13 +174,13 @@ export const cryptoAPI = {
   
   // ดึงประวัติราคา
   getHistory: (symbol: string, params?: { limit?: number }) => 
-    apiClient.get(`/api/crypto/prices/${symbol}/history`, { params }),
+    apiClient.get(`/api/crypto/history/${symbol}`, { params }),
   
   // สถิติ 24 ชั่วโมง
-  getStats24h: (symbol: string) => apiClient.get(`/api/crypto/stats/${symbol}/24h`),
+  getStats24h: (symbol: string) => apiClient.get(`/api/crypto/stats/${symbol}?period=24h`),
   
   // สถิติ 7 วัน
-  getStats7d: (symbol: string) => apiClient.get(`/api/crypto/stats/${symbol}/7d`),
+  getStats7d: (symbol: string) => apiClient.get(`/api/crypto/stats/${symbol}?period=7d`),
 };
 
 // ========================================

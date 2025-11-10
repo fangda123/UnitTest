@@ -16,14 +16,14 @@ cd /Users/js/Desktop/UnitTest/BackEnd
 npm start
 ```
 
-Backend จะรันที่: `http://localhost:4000`
+Backend จะรันที่: `http://localhost:1111`
 
 ### ขั้นตอนที่ 2: สร้างไฟล์ `.env.local`
 
 ```bash
 cd /Users/js/Desktop/UnitTest/FrontEndV2
 cat > .env.local << 'EOF'
-VITE_API_URL=http://localhost:4000
+VITE_API_URL=http://localhost:1111
 VITE_INTERNAL_API_KEY=backend-test-internal-api-key-2024-secure
 VITE_ENV=development
 EOF

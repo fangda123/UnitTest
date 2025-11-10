@@ -121,9 +121,14 @@ class WebSocketService {
       if (client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify(data));
         sentCount++;
+        logger.info(`📤 ส่งข้อความถึง client ${userId}: ${data.type}`);
       }
     });
-    logger.info(`📢 Broadcast ข้อความถึง ${sentCount} clients`);
+    if (sentCount > 0) {
+      logger.info(`📢 Broadcast ข้อความ ${data.type} ถึง ${sentCount} clients`);
+    } else {
+      logger.warn(`⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast ${data.type}`);
+    }
     return sentCount;
   }
 

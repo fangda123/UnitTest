@@ -9,7 +9,7 @@ WebSocket Real-time พร้อมใช้งาน แต่ผมแนะ�
 ## 🎯 สิ่งที่สร้างให้
 
 ### 1. ⚡ WebSocket Hook (`useWebSocket`)
-- เชื่อมต่อ Backend WebSocket (`ws://localhost:4000/ws`)
+- เชื่อมต่อ Backend WebSocket (`ws://localhost:1111/ws`)
 - Auto-authenticate ด้วย JWT Token
 - รับ Real-time notifications
 - Auto-reconnect (ปิดไว้แล้ว)
@@ -94,8 +94,8 @@ npm start
 ```bash
 cd /Users/js/Desktop/UnitTest/FrontEndV2
 cat > .env.local << 'EOF'
-VITE_API_URL=http://localhost:4000
-VITE_WS_URL=ws://localhost:4000/ws
+VITE_API_URL=http://localhost:1111
+VITE_WS_URL=ws://localhost:1111/ws
 EOF
 ```
 
@@ -114,7 +114,7 @@ EOF
 import { useWebSocket } from '../hooks/useWebSocket';
 
 const { isConnected, lastMessage } = useWebSocket({
-  url: 'ws://localhost:4000/ws',
+  url: 'ws://localhost:1111/ws',
   token: yourToken,
   onMessage: (msg) => console.log(msg),
   autoReconnect: false, // ปิดไว้!
@@ -262,7 +262,7 @@ FrontEndV2/
 ### useWebSocket Hook
 ```typescript
 const { isConnected, lastMessage, sendMessage } = useWebSocket({
-  url: 'ws://localhost:4000/ws',
+  url: 'ws://localhost:1111/ws',
   token: 'your-jwt-token',
   onMessage: (message) => {
     console.log('Received:', message);

@@ -1,0 +1,463 @@
+
+> backend-skill-test@1.0.0 start
+> node src/server.js
+
+[32minfo[39m: ✅ เชื่อมต่อ MongoDB สำเร็จ: 172.105.118.30 {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: 🔄 กำลังเชื่อมต่อ Redis... {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: ✅ เชื่อมต่อ Redis สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: ✅ WebSocket Server เริ่มทำงานแล้ว {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: 🚀 เริ่มต้น Binance Data Collector Microservice สำหรับ 2 symbols {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] 🚀 เริ่มต้น Binance Data Collector สำหรับ 2 symbols {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] 🔄 เริ่มการอัพเดทราคา BTCUSDT ทุก 60 วินาที {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] กำลังดึงข้อมูลราคา BTCUSDT จาก Binance API {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] 🔄 เริ่มการอัพเดทราคา ETHUSDT ทุก 60 วินาที {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] กำลังดึงข้อมูลราคา ETHUSDT จาก Binance API {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] 🔌 กำลังเชื่อมต่อ Binance WebSocket: btcusdt@ticker {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] 🔌 กำลังเชื่อมต่อ Binance WebSocket: ethusdt@ticker {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: 🚀 เริ่มต้น Price Aggregator {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Price Aggregator] 🚀 เริ่มต้น Price Aggregator {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: 🚀 เริ่มต้น Market Stats Aggregator (อัพเดททุก 60 นาที) {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Market Stats Aggregator] 🚀 เริ่มต้น Market Stats Aggregator (อัพเดททุก 60 นาที) {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Market Stats Aggregator] กำลังคำนวณสถิติทั้งหมดสำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Market Stats Aggregator] กำลังคำนวณสถิติตลาด BTCUSDT หมวดหมู่ 24h {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: 🚀 เริ่มต้น Workers {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[Workers Manager] 🚀 เริ่มต้น Workers ทั้งหมด
+[32minfo[39m: [Aggregation Worker] 🚀 เริ่มต้น Aggregation Worker (อัพเดททุก 60 วินาที) {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผลข้อมูลราคาใหม่สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: 
+╔═══════════════════════════════════════════════════════╗
+║                                                       ║
+║     🚀 Server เริ่มทำงานแล้ว!                        ║
+║                                                       ║
+║     📡 Port: 1111                                  ║
+║     🌍 Environment: development           ║
+║                                                       ║
+║     📚 API Documentation: http://localhost:1111/api-docs  ║
+║     🔌 WebSocket: ws://localhost:1111/ws          ║
+║                                                       ║
+╚═══════════════════════════════════════════════════════╝
+       {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] ✅ เชื่อมต่อ Binance WebSocket สำเร็จ: BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] ✅ เชื่อมต่อ Binance WebSocket สำเร็จ: ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] ✅ บันทึกข้อมูลราคา BTCUSDT สำเร็จ: $106377.66 {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] ✅ บันทึกข้อมูลราคา ETHUSDT สำเร็จ: $3610.68 {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Binance Collector] 📊 อัพเดทราคา BTCUSDT จาก WebSocket: $106377.65 {"service":"backend-api","timestamp":"2025-11-10 15:06:44"}
+[32minfo[39m: [Market Stats Aggregator] ✅ คำนวณสถิติตลาด BTCUSDT หมวดหมู่ 24h สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: [Market Stats Aggregator] กำลังคำนวณสถิติตลาด BTCUSDT หมวดหมู่ 7d {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: [Binance Collector] 📊 อัพเดทราคา ETHUSDT จาก WebSocket: $3610.68 {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: [Market Stats Aggregator] ✅ คำนวณสถิติตลาด BTCUSDT หมวดหมู่ 7d สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: [Market Stats Aggregator] กำลังคำนวณสถิติตลาด BTCUSDT หมวดหมู่ 30d {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: [Market Stats Aggregator] ✅ คำนวณสถิติตลาด BTCUSDT หมวดหมู่ 30d สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: [Market Stats Aggregator] กำลังคำนวณสถิติตลาด BTCUSDT หมวดหมู่ all {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: [Market Stats Aggregator] ✅ คำนวณสถิติตลาด BTCUSDT หมวดหมู่ all สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: [Market Stats Aggregator] ✅ คำนวณสถิติทั้งหมดสำหรับ BTCUSDT สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: [Market Stats Aggregator] กำลังคำนวณสถิติทั้งหมดสำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: [Market Stats Aggregator] กำลังคำนวณสถิติตลาด ETHUSDT หมวดหมู่ 24h {"service":"backend-api","timestamp":"2025-11-10 15:06:45"}
+[32minfo[39m: [Market Stats Aggregator] ✅ คำนวณสถิติตลาด ETHUSDT หมวดหมู่ 24h สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:46"}
+[32minfo[39m: [Market Stats Aggregator] กำลังคำนวณสถิติตลาด ETHUSDT หมวดหมู่ 7d {"service":"backend-api","timestamp":"2025-11-10 15:06:46"}
+[32minfo[39m: [Market Stats Aggregator] ✅ คำนวณสถิติตลาด ETHUSDT หมวดหมู่ 7d สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:46"}
+[32minfo[39m: [Market Stats Aggregator] กำลังคำนวณสถิติตลาด ETHUSDT หมวดหมู่ 30d {"service":"backend-api","timestamp":"2025-11-10 15:06:46"}
+[32minfo[39m: [Market Stats Aggregator] ✅ คำนวณสถิติตลาด ETHUSDT หมวดหมู่ 30d สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:46"}
+[32minfo[39m: [Market Stats Aggregator] กำลังคำนวณสถิติตลาด ETHUSDT หมวดหมู่ all {"service":"backend-api","timestamp":"2025-11-10 15:06:46"}
+[32minfo[39m: [Market Stats Aggregator] ✅ คำนวณสถิติตลาด ETHUSDT หมวดหมู่ all สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:47"}
+[32minfo[39m: [Market Stats Aggregator] ✅ คำนวณสถิติทั้งหมดสำหรับ ETHUSDT สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:47"}
+[0mGET /api/crypto/prices [32m200[0m 1156.329 ms - 109820[0m
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผลข้อมูลราคา BTCUSDT สำเร็จ (11 records) {"service":"backend-api","timestamp":"2025-11-10 15:06:50"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผลข้อมูลราคาใหม่สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:50"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:50"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:06:50"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:50"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:06:50"}
+[32minfo[39m: 🔌 มีการเชื่อมต่อ WebSocket ใหม่ {"service":"backend-api","timestamp":"2025-11-10 15:06:54"}
+[32minfo[39m: 🔌 มีการเชื่อมต่อ WebSocket ใหม่ {"service":"backend-api","timestamp":"2025-11-10 15:06:54"}
+[32minfo[39m: ✅ ผู้ใช้ 691194969b369fb7b2f938bc authenticate WebSocket สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:54"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:06:54"}
+[0mGET /api/crypto/prices [32m200[0m 232.278 ms - 109807[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:55"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:06:55"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:06:55"}
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผลข้อมูลราคา ETHUSDT สำเร็จ (12 records) {"service":"backend-api","timestamp":"2025-11-10 15:06:56"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผล 15 aggregations ที่ยังไม่ได้ประมวลผล {"service":"backend-api","timestamp":"2025-11-10 15:06:56"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:06:56"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:06:56"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:06:56"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล BTCUSDT หมวดหมู่ daily ตั้งแต่ Mon Nov 10 2025 00:00:00 GMT+0700 (Indochina Time) ถึง Tue Nov 11 2025 00:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:06:56"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล BTCUSDT หมวดหมู่ daily สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:57"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล ETHUSDT หมวดหมู่ daily ตั้งแต่ Mon Nov 10 2025 00:00:00 GMT+0700 (Indochina Time) ถึง Tue Nov 11 2025 00:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:06:57"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล ETHUSDT หมวดหมู่ daily สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:57"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล ETHUSDT หมวดหมู่ hourly ตั้งแต่ Mon Nov 10 2025 15:00:00 GMT+0700 (Indochina Time) ถึง Mon Nov 10 2025 16:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:06:57"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล ETHUSDT หมวดหมู่ hourly สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:57"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล BTCUSDT หมวดหมู่ hourly ตั้งแต่ Mon Nov 10 2025 15:00:00 GMT+0700 (Indochina Time) ถึง Mon Nov 10 2025 16:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:06:57"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล BTCUSDT หมวดหมู่ hourly สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:58"}
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผล aggregations สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:58"}
+[32minfo[39m: 🔌 มีการเชื่อมต่อ WebSocket ใหม่ {"service":"backend-api","timestamp":"2025-11-10 15:06:59"}
+[32minfo[39m: ✅ ผู้ใช้ 691194969b369fb7b2f938bc authenticate WebSocket สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:06:59"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:02"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:02"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:02"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:02"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:02"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:02"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:07:04"}
+[0mGET /api/crypto/prices [36m304[0m 284.523 ms - -[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:08"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:08"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:08"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:08"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:08"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:08"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:13"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:13"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:13"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:13"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:13"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:13"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:07:14"}
+[0mGET /api/crypto/prices [36m304[0m 262.156 ms - -[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:19"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:19"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:19"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:19"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:19"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:19"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:07:24"}
+[0mGET /api/crypto/prices [36m304[0m 336.795 ms - -[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:25"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:25"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:25"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:25"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:25"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:25"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:29"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:29"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:29"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:29"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:29"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:07:29"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:07:34"}
+[0mGET /api/crypto/prices [36m304[0m 258.315 ms - -[0m
+[32minfo[39m: 🔌 ผู้ใช้ 691194969b369fb7b2f938bc ตัดการเชื่อมต่อ WebSocket {"service":"backend-api","timestamp":"2025-11-10 15:07:34"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:07:34"}
+[0mGET /api/crypto/prices [36m304[0m 163.177 ms - -[0m
+[0mGET /api/crypto/history/BTCUSDT?limit=50 [32m200[0m 205.979 ms - 17048[0m
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:07:35"}
+[0mGET /api/crypto/prices [36m304[0m 232.979 ms - -[0m
+[0mGET /api/crypto/stats/BTCUSDT?period=24h [32m200[0m 313.027 ms - 222[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:35"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:35"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:35"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:35"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:40"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:40"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:41"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:41"}
+[32minfo[39m: [Binance Collector] กำลังดึงข้อมูลราคา BTCUSDT จาก Binance API {"service":"backend-api","timestamp":"2025-11-10 15:07:44"}
+[32minfo[39m: [Binance Collector] กำลังดึงข้อมูลราคา ETHUSDT จาก Binance API {"service":"backend-api","timestamp":"2025-11-10 15:07:44"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผลข้อมูลราคาใหม่สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:44"}
+[32minfo[39m: [Binance Collector] ✅ บันทึกข้อมูลราคา BTCUSDT สำเร็จ: $106499.41 {"service":"backend-api","timestamp":"2025-11-10 15:07:44"}
+[32minfo[39m: [Binance Collector] ✅ บันทึกข้อมูลราคา ETHUSDT สำเร็จ: $3614.15 {"service":"backend-api","timestamp":"2025-11-10 15:07:44"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:07:45"}
+[0mGET /api/crypto/prices [36m304[0m 260.322 ms - -[0m
+[32minfo[39m: [Binance Collector] 📊 อัพเดทราคา ETHUSDT จาก WebSocket: $3614.16 {"service":"backend-api","timestamp":"2025-11-10 15:07:45"}
+[32minfo[39m: [Binance Collector] 📊 อัพเดทราคา BTCUSDT จาก WebSocket: $106499.41 {"service":"backend-api","timestamp":"2025-11-10 15:07:45"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:46"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:46"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:47"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:47"}
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผลข้อมูลราคา BTCUSDT สำเร็จ (10 records) {"service":"backend-api","timestamp":"2025-11-10 15:07:49"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผลข้อมูลราคาใหม่สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:49"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:51"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:51"}
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผลข้อมูลราคา ETHUSDT สำเร็จ (12 records) {"service":"backend-api","timestamp":"2025-11-10 15:07:53"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:53"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:53"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผล 13 aggregations ที่ยังไม่ได้ประมวลผล {"service":"backend-api","timestamp":"2025-11-10 15:07:54"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล BTCUSDT หมวดหมู่ daily ตั้งแต่ Mon Nov 10 2025 00:00:00 GMT+0700 (Indochina Time) ถึง Tue Nov 11 2025 00:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:07:54"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล BTCUSDT หมวดหมู่ daily สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:07:54"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล ETHUSDT หมวดหมู่ daily ตั้งแต่ Mon Nov 10 2025 00:00:00 GMT+0700 (Indochina Time) ถึง Tue Nov 11 2025 00:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:07:54"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล ETHUSDT หมวดหมู่ daily สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:07:54"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล ETHUSDT หมวดหมู่ hourly ตั้งแต่ Mon Nov 10 2025 15:00:00 GMT+0700 (Indochina Time) ถึง Mon Nov 10 2025 16:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:07:54"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล ETHUSDT หมวดหมู่ hourly สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:07:54"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล BTCUSDT หมวดหมู่ hourly ตั้งแต่ Mon Nov 10 2025 15:00:00 GMT+0700 (Indochina Time) ถึง Mon Nov 10 2025 16:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:07:54"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล BTCUSDT หมวดหมู่ hourly สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:07:55"}
+[0mGET /api/crypto/prices [32m200[0m 1346.230 ms - 109820[0m
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผล aggregations สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:07:56"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:56"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:56"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:07:58"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:07:58"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:02"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:02"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:04"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:04"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:08:05"}
+[0mGET /api/crypto/prices [32m200[0m 266.145 ms - 109807[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:07"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:07"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:10"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:10"}
+[0mGET /api/crypto/history/SAPIENUSDT?limit=50 [32m200[0m 168.590 ms - 12459[0m
+[0mGET /api/crypto/stats/SAPIENUSDT?period=24h [32m200[0m 168.089 ms - 216[0m
+[0mGET /api/crypto/stats/DIAUSDT?period=24h [32m200[0m 127.396 ms - 164[0m
+[0mGET /api/crypto/history/DIAUSDT?limit=50 [32m200[0m 133.854 ms - 362[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:13"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:13"}
+[0mGET /api/crypto/stats/SAPIENUSDT?period=24h [36m304[0m 104.177 ms - -[0m
+[0mGET /api/crypto/history/SAPIENUSDT?limit=50 [36m304[0m 107.826 ms - -[0m
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:08:15"}
+[0mGET /api/crypto/prices [36m304[0m 232.231 ms - -[0m
+[0mGET /api/crypto/history/USDEUSDT?limit=50 [32m200[0m 84.119 ms - 5908[0m
+[0mGET /api/crypto/stats/USDEUSDT?period=24h [32m200[0m 81.662 ms - 177[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:15"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:15"}
+[0mGET /api/crypto/history/DIAUSDT?limit=50 [36m304[0m 119.638 ms - -[0m
+[0mGET /api/crypto/stats/DIAUSDT?period=24h [36m304[0m 121.713 ms - -[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:18"}
+[33mwarn[39m: ⚠️ ไม่มี clients ที่เชื่อมต่ออยู่ - ไม่สามารถ broadcast crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:18"}
+[32minfo[39m: 🔌 มีการเชื่อมต่อ WebSocket ใหม่ {"service":"backend-api","timestamp":"2025-11-10 15:08:20"}
+[32minfo[39m: ✅ ผู้ใช้ 691194969b369fb7b2f938bc authenticate WebSocket สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:08:20"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:08:20"}
+[0mGET /api/crypto/prices [36m304[0m 224.731 ms - -[0m
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:08:20"}
+[0mGET /api/crypto/prices [36m304[0m 296.261 ms - -[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:22"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:22"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:22"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:24"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:24"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:24"}
+[32minfo[39m: 🔌 มีการเชื่อมต่อ WebSocket ใหม่ {"service":"backend-api","timestamp":"2025-11-10 15:08:25"}
+[32minfo[39m: ✅ ผู้ใช้ 691194969b369fb7b2f938bc authenticate WebSocket สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:08:25"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:08:25"}
+[0mGET /api/crypto/prices [32m200[0m 246.053 ms - 109807[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:27"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:27"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:27"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:29"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:29"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:29"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:08:30"}
+[0mGET /api/crypto/prices [36m304[0m 228.763 ms - -[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:32"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:32"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:32"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:34"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:34"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:34"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:37"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:37"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:37"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:08:40"}
+[0mGET /api/crypto/prices [36m304[0m 247.562 ms - -[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:40"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:40"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:40"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:43"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:43"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:43"}
+[32minfo[39m: [Binance Collector] กำลังดึงข้อมูลราคา BTCUSDT จาก Binance API {"service":"backend-api","timestamp":"2025-11-10 15:08:44"}
+[32minfo[39m: [Binance Collector] กำลังดึงข้อมูลราคา ETHUSDT จาก Binance API {"service":"backend-api","timestamp":"2025-11-10 15:08:44"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผลข้อมูลราคาใหม่สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:44"}
+[32minfo[39m: [Binance Collector] ✅ บันทึกข้อมูลราคา BTCUSDT สำเร็จ: $106451.4 {"service":"backend-api","timestamp":"2025-11-10 15:08:44"}
+[32minfo[39m: [Binance Collector] ✅ บันทึกข้อมูลราคา ETHUSDT สำเร็จ: $3611.15 {"service":"backend-api","timestamp":"2025-11-10 15:08:44"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:45"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:45"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:45"}
+[32minfo[39m: [Binance Collector] 📊 อัพเดทราคา BTCUSDT จาก WebSocket: $106451.4 {"service":"backend-api","timestamp":"2025-11-10 15:08:46"}
+[32minfo[39m: [Binance Collector] 📊 อัพเดทราคา ETHUSDT จาก WebSocket: $3611.08 {"service":"backend-api","timestamp":"2025-11-10 15:08:46"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:48"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:48"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:48"}
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผลข้อมูลราคา BTCUSDT สำเร็จ (10 records) {"service":"backend-api","timestamp":"2025-11-10 15:08:49"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผลข้อมูลราคาใหม่สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:49"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:08:50"}
+[0mGET /api/crypto/prices [36m304[0m 218.391 ms - -[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:50"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:50"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:50"}
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผลข้อมูลราคา ETHUSDT สำเร็จ (12 records) {"service":"backend-api","timestamp":"2025-11-10 15:08:54"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:54"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:54"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:54"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผล 13 aggregations ที่ยังไม่ได้ประมวลผล {"service":"backend-api","timestamp":"2025-11-10 15:08:55"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล BTCUSDT หมวดหมู่ daily ตั้งแต่ Mon Nov 10 2025 00:00:00 GMT+0700 (Indochina Time) ถึง Tue Nov 11 2025 00:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:08:55"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล BTCUSDT หมวดหมู่ daily สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:08:55"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล ETHUSDT หมวดหมู่ daily ตั้งแต่ Mon Nov 10 2025 00:00:00 GMT+0700 (Indochina Time) ถึง Tue Nov 11 2025 00:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:08:55"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล ETHUSDT หมวดหมู่ daily สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:08:55"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล ETHUSDT หมวดหมู่ hourly ตั้งแต่ Mon Nov 10 2025 15:00:00 GMT+0700 (Indochina Time) ถึง Mon Nov 10 2025 16:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:08:55"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:55"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:55"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:55"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล ETHUSDT หมวดหมู่ hourly สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:08:56"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล BTCUSDT หมวดหมู่ hourly ตั้งแต่ Mon Nov 10 2025 15:00:00 GMT+0700 (Indochina Time) ถึง Mon Nov 10 2025 16:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:08:56"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล BTCUSDT หมวดหมู่ hourly สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:08:56"}
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผล aggregations สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:08:56"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:08:59"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:08:59"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:08:59"}
+[0mGET /api/crypto/prices [32m200[0m 1034.515 ms - 109818[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:01"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:01"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:01"}
+[32minfo[39m: 🔌 มีการเชื่อมต่อ WebSocket ใหม่ {"service":"backend-api","timestamp":"2025-11-10 15:09:03"}
+[32minfo[39m: 🔌 มีการเชื่อมต่อ WebSocket ใหม่ {"service":"backend-api","timestamp":"2025-11-10 15:09:03"}
+[32minfo[39m: ✅ ผู้ใช้ 691194969b369fb7b2f938bc authenticate WebSocket สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:09:03"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:09:03"}
+[0mGET /api/crypto/prices [32m200[0m 278.726 ms - 109805[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:05"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:05"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:05"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:08"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:08"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:08"}
+[32minfo[39m: 🔌 มีการเชื่อมต่อ WebSocket ใหม่ {"service":"backend-api","timestamp":"2025-11-10 15:09:08"}
+[32minfo[39m: ✅ ผู้ใช้ 691194969b369fb7b2f938bc authenticate WebSocket สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:09:08"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:11"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:11"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:11"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:13"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:13"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:13"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:09:13"}
+[0mGET /api/crypto/prices [36m304[0m 263.274 ms - -[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:17"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:17"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:17"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:19"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:19"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:19"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:23"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:23"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:23"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:09:23"}
+[0mGET /api/crypto/prices [36m304[0m 262.553 ms - -[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:24"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:24"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:24"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:28"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:28"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:28"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:30"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:30"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:30"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:09:33"}
+[0mGET /api/crypto/prices [36m304[0m 282.896 ms - -[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:33"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:33"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:33"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:35"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:35"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:35"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:39"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:39"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:39"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:41"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:41"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:41"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:09:43"}
+[0mGET /api/crypto/prices [36m304[0m 209.701 ms - -[0m
+[32minfo[39m: [Binance Collector] กำลังดึงข้อมูลราคา BTCUSDT จาก Binance API {"service":"backend-api","timestamp":"2025-11-10 15:09:44"}
+[32minfo[39m: [Binance Collector] กำลังดึงข้อมูลราคา ETHUSDT จาก Binance API {"service":"backend-api","timestamp":"2025-11-10 15:09:44"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผลข้อมูลราคาใหม่สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:44"}
+[32minfo[39m: 🔌 ผู้ใช้ 691194969b369fb7b2f938bc ตัดการเชื่อมต่อ WebSocket {"service":"backend-api","timestamp":"2025-11-10 15:09:44"}
+[32minfo[39m: [Binance Collector] ✅ บันทึกข้อมูลราคา BTCUSDT สำเร็จ: $106343.59 {"service":"backend-api","timestamp":"2025-11-10 15:09:44"}
+[32minfo[39m: [Binance Collector] ✅ บันทึกข้อมูลราคา ETHUSDT สำเร็จ: $3609.43 {"service":"backend-api","timestamp":"2025-11-10 15:09:44"}
+[32minfo[39m: 🔌 มีการเชื่อมต่อ WebSocket ใหม่ {"service":"backend-api","timestamp":"2025-11-10 15:09:44"}
+[32minfo[39m: 🔌 มีการเชื่อมต่อ WebSocket ใหม่ {"service":"backend-api","timestamp":"2025-11-10 15:09:44"}
+[32minfo[39m: ✅ ผู้ใช้ 691194969b369fb7b2f938bc authenticate WebSocket สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:09:44"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:09:45"}
+[0mGET /api/crypto/prices [36m304[0m 253.399 ms - -[0m
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:09:45"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:45"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:45"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:45"}
+[0mGET /api/crypto/prices [36m304[0m 311.700 ms - -[0m
+[32minfo[39m: [Binance Collector] 📊 อัพเดทราคา BTCUSDT จาก WebSocket: $106345.21 {"service":"backend-api","timestamp":"2025-11-10 15:09:47"}
+[32minfo[39m: [Binance Collector] 📊 อัพเดทราคา ETHUSDT จาก WebSocket: $3609.74 {"service":"backend-api","timestamp":"2025-11-10 15:09:47"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:48"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:48"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:48"}
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผลข้อมูลราคา BTCUSDT สำเร็จ (10 records) {"service":"backend-api","timestamp":"2025-11-10 15:09:49"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผลข้อมูลราคาใหม่สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:49"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:49"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:49"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:49"}
+[32minfo[39m: 🔌 มีการเชื่อมต่อ WebSocket ใหม่ {"service":"backend-api","timestamp":"2025-11-10 15:09:50"}
+[32minfo[39m: ✅ ผู้ใช้ 691194969b369fb7b2f938bc authenticate WebSocket สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:09:50"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:52"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:52"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:52"}
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผลข้อมูลราคา ETHUSDT สำเร็จ (12 records) {"service":"backend-api","timestamp":"2025-11-10 15:09:55"}
+[32minfo[39m: [Aggregation Worker] กำลังประมวลผล 13 aggregations ที่ยังไม่ได้ประมวลผล {"service":"backend-api","timestamp":"2025-11-10 15:09:55"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:09:55"}
+[0mGET /api/crypto/prices [36m304[0m 304.764 ms - -[0m
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล BTCUSDT หมวดหมู่ daily ตั้งแต่ Mon Nov 10 2025 00:00:00 GMT+0700 (Indochina Time) ถึง Tue Nov 11 2025 00:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:09:55"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล BTCUSDT หมวดหมู่ daily สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:09:55"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล ETHUSDT หมวดหมู่ daily ตั้งแต่ Mon Nov 10 2025 00:00:00 GMT+0700 (Indochina Time) ถึง Tue Nov 11 2025 00:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:09:55"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:55"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:55"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:55"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล ETHUSDT หมวดหมู่ daily สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:09:55"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล ETHUSDT หมวดหมู่ hourly ตั้งแต่ Mon Nov 10 2025 15:00:00 GMT+0700 (Indochina Time) ถึง Mon Nov 10 2025 16:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:09:56"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล ETHUSDT หมวดหมู่ hourly สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:09:56"}
+[32minfo[39m: [Price Aggregator] กำลังสรุปผล BTCUSDT หมวดหมู่ hourly ตั้งแต่ Mon Nov 10 2025 15:00:00 GMT+0700 (Indochina Time) ถึง Mon Nov 10 2025 16:00:00 GMT+0700 (Indochina Time) {"service":"backend-api","timestamp":"2025-11-10 15:09:56"}
+[32minfo[39m: [Price Aggregator] ✅ สรุปผล BTCUSDT หมวดหมู่ hourly สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:09:56"}
+[32minfo[39m: [Aggregation Worker] ✅ ประมวลผล aggregations สำเร็จ {"service":"backend-api","timestamp":"2025-11-10 15:09:57"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:09:58"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:09:58"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:09:58"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:00"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:00"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:00"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:03"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:03"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:03"}
+[0mGET /api/crypto/prices [32m200[0m 892.709 ms - 109820[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:06"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:06"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:06"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:09"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:09"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:09"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:13"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:13"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:13"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:16"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:16"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:16"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:18"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:18"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:18"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:21"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:21"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:21"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:24"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:24"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:24"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:27"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:27"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:27"}
+[32minfo[39m: ดึงข้อมูลราคาทั้งหมดจาก cache {"service":"backend-api","timestamp":"2025-11-10 15:10:29"}
+[0mGET /api/crypto/prices [32m200[0m 265.402 ms - 109807[0m
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:31"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:31"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:31"}
+[32minfo[39m: 
+SIGTERM received. กำลังปิด server... {"service":"backend-api","timestamp":"2025-11-10 15:10:32"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:32"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:32"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:32"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:36"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:36"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:36"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ ETHUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:38"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:38"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:38"}
+[32minfo[39m: 📡 ส่ง WebSocket notification สำหรับ BTCUSDT {"service":"backend-api","timestamp":"2025-11-10 15:10:42"}
+[32minfo[39m: 📤 ส่งข้อความถึง client 691194969b369fb7b2f938bc: crypto.price.update {"service":"backend-api","timestamp":"2025-11-10 15:10:42"}
+[32minfo[39m: 📢 Broadcast ข้อความ crypto.price.update ถึง 1 clients {"service":"backend-api","timestamp":"2025-11-10 15:10:42"}
+[31merror[39m: ❌ ไม่สามารถปิด server ได้ทันเวลา บังคับปิด... {"service":"backend-api","timestamp":"2025-11-10 15:10:42"}

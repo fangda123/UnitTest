@@ -267,7 +267,7 @@ cd /Users/js/Desktop/UnitTest/BackEnd
 npm start
 ```
 
-Backend จะรันที่: **http://localhost:4000**
+Backend จะรันที่: **http://localhost:1111**
 
 ### ขั้นตอนที่ 2: เริ่ม Frontend Server
 
@@ -301,7 +301,7 @@ npm start
 2. **สร้างไฟล์ `.env`** (ถ้ายังไม่มี)
 ```bash
 cd /Users/js/Desktop/UnitTest/FrontEndV2
-echo "VITE_API_URL=http://localhost:4000" > .env.local
+echo "VITE_API_URL=http://localhost:1111" > .env.local
 ```
 
 3. **แก้ไข App.tsx** เพื่อใช้ API จริง:

@@ -81,13 +81,13 @@
 ╠════════════════════════════════════════════════════════════════════╣
 
   Development:
-     URL: http://localhost:4000
-     Port: 4000 (ไม่ชนกับ Frontend port 3000)
-     API Docs: http://localhost:4000/api-docs
-     WebSocket: ws://localhost:4000/ws
+     URL: http://localhost:1111
+     Port: 1111 (ไม่ชนกับ Frontend port 1112)
+     API Docs: http://localhost:1111/api-docs
+     WebSocket: ws://localhost:1111/ws
 
   Production (เมื่อ deploy):
-     URL: http://172.105.118.30:4000
+     URL: http://172.105.118.30:1111
      MongoDB: 172.105.118.30:27017
      Redis: 172.105.118.30:6379
 
@@ -110,11 +110,11 @@
      • Workflows
 
   2. Backend-API-Local.postman_environment.json
-     • base_url: http://localhost:4000
+     • base_url: http://localhost:1111
      • user_token, admin_token variables
 
   3. Backend-API-Production.postman_environment.json
-     • base_url: http://172.105.118.30:4000
+     • base_url: http://172.105.118.30:1111
 
   4. README.md (12KB)
      • คู่มือการใช้งาน Postman
@@ -214,7 +214,7 @@
 
 📦 สิ่งที่ส่งมอบ:
    1. GitHub Repository: [URL]
-   2. API Documentation: http://172.105.118.30:4000/api-docs
+   2. API Documentation: http://172.105.118.30:1111/api-docs
    3. Postman Collection: 5 ไฟล์ใน postman/
    4. Unit Tests: 29/29 passed (67% coverage)
 
@@ -251,7 +251,7 @@
 🌐 Server Info:
    MongoDB: 172.105.118.30:27017
    Redis: 172.105.118.30:6379
-   Port: 4000 (แนะนำ)
+   Port: 1111 (แนะนำ)
 
 ขอบคุณที่ให้โอกาส
 [ชื่อของคุณ]
