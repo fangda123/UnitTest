@@ -8,6 +8,7 @@ const binanceDataCollector = require('./microservices/binance/dataCollector');
 const priceAggregator = require('./aggregators/priceAggregator');
 const marketStatsAggregator = require('./aggregators/marketStatsAggregator');
 const workersManager = require('./workers');
+const tradingService = require('./services/tradingService');
 const websocketService = require('./services/websocketService');
 const logger = require('./utils/logger');
 
@@ -87,6 +88,16 @@ const startServer = async () => {
       // เริ่มต้น Workers
       logger.info('🚀 เริ่มต้น Workers');
       workersManager.start(symbols);
+
+      // เริ่มต้น Trading Service - อัพเดตราคา BTC อัตโนมัติ
+      logger.info('🚀 เริ่มต้น Trading Service');
+      setInterval(async () => {
+        try {
+          await tradingService.updatePriceAndCalculateSignal('BTCUSDT');
+        } catch (error) {
+          logger.error('❌ Error updating trading price:', error.message);
+        }
+      }, 5000); // อัพเดททุก 5 วินาที
     }
 
     // เริ่ม HTTP Server

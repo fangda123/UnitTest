@@ -210,6 +210,40 @@ export const internalAPI = {
 };
 
 // ========================================
+// 💹 Trading APIs
+// ========================================
+
+export const tradingAPI = {
+  // สร้างการจำลองการเทรด
+  createSimulation: (data: { symbol?: string; initialInvestment: number; settings?: any }) =>
+    apiClient.post('/api/trading/simulations', data),
+  
+  // ดึงการจำลองการเทรดทั้งหมด
+  getSimulations: (params?: { status?: string; symbol?: string }) =>
+    apiClient.get('/api/trading/simulations', { params }),
+  
+  // ดึงการจำลองการเทรดตาม ID
+  getSimulationById: (id: string) =>
+    apiClient.get(`/api/trading/simulations/${id}`),
+  
+  // อัพเดทการจำลองการเทรด
+  updateSimulation: (id: string) =>
+    apiClient.post(`/api/trading/simulations/${id}/update`),
+  
+  // หยุดการจำลองการเทรด
+  stopSimulation: (id: string) =>
+    apiClient.post(`/api/trading/simulations/${id}/stop`),
+  
+  // ดึงประวัติการเทรด
+  getTrades: (id: string, params?: { limit?: number; page?: number }) =>
+    apiClient.get(`/api/trading/simulations/${id}/trades`, { params }),
+  
+  // ดึงสัญญาณการเทรด
+  getTradingSignal: (symbol: string = 'BTCUSDT') =>
+    apiClient.get(`/api/trading/signal/${symbol}`),
+};
+
+// ========================================
 // 🛠️ Helper Functions
 // ========================================
 

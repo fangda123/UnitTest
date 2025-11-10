@@ -6,6 +6,7 @@ import DashboardLayout from './components/Layout/DashboardLayout';
 import App from './App'; // Dashboard หลัก
 import RealtimeDashboard from './pages/RealtimeDashboard'; // Real-time Dashboard
 import CryptoPage from './pages/CryptoPage';
+import TradingPage from './pages/TradingPage';
 import UsersManagementPage from './pages/UsersManagementPage';
 import ProfilePage from './pages/ProfilePage';
 
@@ -96,10 +97,7 @@ function AppWithRouter() {
           element={
             <ProtectedRoute>
               <DashboardLayout>
-                <div className="p-6">
-                  <h1 className="text-3xl font-bold text-gray-100">Trading</h1>
-                  <p className="text-gray-400">Coming soon...</p>
-                </div>
+                <TradingPage />
               </DashboardLayout>
             </ProtectedRoute>
           }

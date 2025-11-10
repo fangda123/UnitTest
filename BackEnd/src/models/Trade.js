@@ -1,68 +1,87 @@
 const mongoose = require('mongoose');
 
 /**
- * Trade Schema สำหรับจัดเก็บข้อมูลการเทรด
- * ใช้สำหรับตัวอย่างการออกแบบฐานข้อมูล
+ * Trade Schema
+ * เก็บประวัติการเทรดแต่ละครั้ง
  */
 const tradeSchema = new mongoose.Schema(
   {
-    // ผู้ใช้ที่ทำการเทรด
-    userId: {
+    // การจำลองการเทรดที่เกี่ยวข้อง
+    simulationId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'กรุณาระบุผู้ใช้'],
+      ref: 'TradingSimulation',
+      required: true,
       index: true,
     },
-    // สัญลักษณ์คู่เทรด
-    symbol: {
-      type: String,
-      required: [true, 'กรุณาระบุสัญลักษณ์คู่เทรด'],
-      uppercase: true,
-      trim: true,
-    },
-    // ประเภทการเทรด (buy หรือ sell)
+
+    // ประเภทการเทรด
     type: {
       type: String,
       enum: ['buy', 'sell'],
-      required: [true, 'กรุณาระบุประเภทการเทรด'],
-    },
-    // ราคาที่ทำการเทรด
-    price: {
-      type: Number,
-      required: [true, 'กรุณาระบุราคา'],
-      min: [0, 'ราคาต้องมากกว่า 0'],
-    },
-    // จำนวนที่เทรด
-    amount: {
-      type: Number,
-      required: [true, 'กรุณาระบุจำนวน'],
-      min: [0, 'จำนวนต้องมากกว่า 0'],
-    },
-    // มูลค่ารวม
-    total: {
-      type: Number,
       required: true,
     },
-    // สถานะการเทรด
-    status: {
+
+    // สัญลักษณ์คู่เทรด
+    symbol: {
       type: String,
-      enum: ['pending', 'completed', 'cancelled', 'failed'],
-      default: 'pending',
+      required: true,
+      uppercase: true,
     },
-    // ค่าธรรมเนียม
-    fee: {
+
+    // ราคาที่เทรด
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
+    // จำนวน
+    quantity: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
+    // จำนวนเงิน
+    amount: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
+    // กำไร/ขาดทุน (สำหรับการขาย)
+    profit: {
       type: Number,
       default: 0,
     },
-    // หมายเหตุ
-    notes: {
-      type: String,
-      trim: true,
+
+    // กำไร/ขาดทุนเป็นเปอร์เซ็นต์
+    profitPercentage: {
+      type: Number,
+      default: 0,
     },
-    // เวลาที่ทำการเทรด
-    tradeDate: {
-      type: Date,
-      default: Date.now,
+
+    // สัญญาณการเทรด
+    signal: {
+      type: {
+        signal: String,
+        confidence: Number,
+        reasons: [String],
+        indicators: mongoose.Schema.Types.Mixed,
+      },
+      required: true,
+    },
+
+    // ยอดเงินหลังการเทรด
+    balanceAfter: {
+      type: Number,
+      required: true,
+    },
+
+    // จำนวนเหรียญหลังการเทรด
+    holdingsAfter: {
+      type: Number,
+      required: true,
     },
   },
   {
@@ -70,26 +89,10 @@ const tradeSchema = new mongoose.Schema(
   }
 );
 
-// Middleware: คำนวณมูลค่ารวมก่อนบันทึก
-tradeSchema.pre('save', function (next) {
-  this.total = this.price * this.amount;
-  next();
-});
-
-// Index สำหรับการค้นหาที่เร็วขึ้น
-tradeSchema.index({ userId: 1, createdAt: -1 });
+// Indexes
+tradeSchema.index({ simulationId: 1, createdAt: -1 });
 tradeSchema.index({ symbol: 1, createdAt: -1 });
-tradeSchema.index({ status: 1 });
-
-// Method: ดึงประวัติการเทรดของผู้ใช้
-tradeSchema.statics.getUserTrades = async function (userId, limit = 10) {
-  return await this.find({ userId })
-    .sort({ createdAt: -1 })
-    .limit(limit)
-    .populate('userId', 'username email');
-};
 
 const Trade = mongoose.model('Trade', tradeSchema);
 
 module.exports = Trade;
-

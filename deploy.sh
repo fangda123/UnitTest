@@ -3,21 +3,32 @@
 # Deploy Script
 # Script สำหรับ deploy application ลง server
 
-set -e
-
-# Configuration
-SERVER_IP="172.105.118.30"
-SERVER_USER="root"
-SERVER_PASSWORD=""
-SERVER_PATH="/var/www/crypto-dashboard"
-SSH_PORT=22
-
 # สีสำหรับ output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# Configuration
+SERVER_IP="172.105.118.30"
+SERVER_USER="root"
+SERVER_PATH="/var/www/crypto-dashboard"
+SSH_PORT=22
+
+# รับ password จาก command line หรือ prompt
+if [ -z "$1" ]; then
+    read -sp "กรุณาใส่รหัสผ่าน server: " SERVER_PASSWORD
+    echo
+else
+    SERVER_PASSWORD="$1"
+fi
+
+if [ -z "$SERVER_PASSWORD" ]; then
+    echo -e "${RED}❌ ต้องระบุรหัสผ่าน server${NC}"
+    echo -e "${YELLOW}Usage: ./deploy.sh [password]${NC}"
+    exit 1
+fi
 
 echo -e "${BLUE}🚀 เริ่มต้น Deploy Process...${NC}\n"
 
@@ -39,11 +50,19 @@ fi
 
 # ตรวจสอบการเชื่อมต่อ server
 echo -e "${YELLOW}🔌 กำลังตรวจสอบการเชื่อมต่อ server...${NC}"
-if ! sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p $SSH_PORT "$SERVER_USER@$SERVER_IP" "echo 'Connection successful'" 2>/dev/null; then
+if timeout 10 sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -p $SSH_PORT "$SERVER_USER@$SERVER_IP" "echo 'Connection successful'" >/dev/null 2>&1; then
+    echo -e "${GREEN}✅ เชื่อมต่อ server สำเร็จ${NC}\n"
+else
     echo -e "${RED}❌ ไม่สามารถเชื่อมต่อ server ได้${NC}"
+    echo -e "${YELLOW}💡 ตรวจสอบ:${NC}"
+    echo -e "   - Server IP: ${SERVER_IP}"
+    echo -e "   - SSH Port: ${SSH_PORT}"
+    echo -e "   - Username: ${SERVER_USER}"
+    if [ ${#SERVER_PASSWORD} -gt 3 ]; then
+        echo -e "   - Password: ${SERVER_PASSWORD:0:3}***"
+    fi
     exit 1
 fi
-echo -e "${GREEN}✅ เชื่อมต่อ server สำเร็จ${NC}\n"
 
 # สร้าง directory บน server (ถ้ายังไม่มี)
 echo -e "${YELLOW}📁 ตรวจสอบ directory บน server...${NC}"

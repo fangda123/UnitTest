@@ -7,9 +7,21 @@ setlocal enabledelayedexpansion
 REM Configuration
 set SERVER_IP=172.105.118.30
 set SERVER_USER=root
-set SERVER_PASSWORD=MasterJ123$
 set SERVER_PATH=/var/www/crypto-dashboard
 set SSH_PORT=22
+
+REM รับ password จาก command line
+if "%1"=="" (
+    set /p SERVER_PASSWORD="กรุณาใส่รหัสผ่าน server: "
+) else (
+    set SERVER_PASSWORD=%1
+)
+
+if "%SERVER_PASSWORD%"=="" (
+    echo ❌ ต้องระบุรหัสผ่าน server
+    echo Usage: deploy.bat [password]
+    exit /b 1
+)
 
 echo 🚀 เริ่มต้น Deploy Process...
 echo.
