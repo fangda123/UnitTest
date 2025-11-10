@@ -52,6 +52,44 @@ git commit -m "$COMMIT_MESSAGE"
 CURRENT_BRANCH=$(git branch --show-current)
 echo -e "\n${GREEN}🌿 Current Branch: ${CURRENT_BRANCH}${NC}"
 
+# Fetch และ pull remote changes ก่อน push
+echo -e "\n${YELLOW}📥 กำลังดึงข้อมูลจาก remote repository...${NC}"
+git fetch origin "$CURRENT_BRANCH" 2>/dev/null || git fetch origin
+
+# ตรวจสอบว่ามี remote branch หรือไม่
+if git rev-parse --verify "origin/$CURRENT_BRANCH" >/dev/null 2>&1; then
+    # ตรวจสอบว่ามี remote changes หรือไม่
+    LOCAL=$(git rev-parse @)
+    REMOTE=$(git rev-parse "origin/$CURRENT_BRANCH")
+    BASE=$(git merge-base @ "origin/$CURRENT_BRANCH" 2>/dev/null || echo "")
+    
+    if [ -n "$BASE" ] && [ "$LOCAL" != "$REMOTE" ] && [ "$LOCAL" != "$BASE" ]; then
+        echo -e "${YELLOW}⚠️  พบการเปลี่ยนแปลงใน remote repository${NC}"
+        echo -e "${YELLOW}🔄 กำลัง pull และ merge...${NC}"
+        
+        if git pull origin "$CURRENT_BRANCH" --no-rebase; then
+            echo -e "${GREEN}✅ Pull สำเร็จ!${NC}"
+        else
+            echo -e "${RED}❌ Pull ล้มเหลว - มี merge conflicts${NC}"
+            echo -e "${YELLOW}💡 กรุณาแก้ไข conflicts แล้ว commit อีกครั้ง${NC}"
+            exit 1
+        fi
+    elif [ -n "$BASE" ] && [ "$LOCAL" == "$BASE" ]; then
+        echo -e "${YELLOW}⚠️  Local repository อยู่หลัง remote - กำลัง pull...${NC}"
+        if git pull origin "$CURRENT_BRANCH" --no-rebase; then
+            echo -e "${GREEN}✅ Pull สำเร็จ!${NC}"
+        else
+            echo -e "${RED}❌ Pull ล้มเหลว - มี merge conflicts${NC}"
+            echo -e "${YELLOW}💡 กรุณาแก้ไข conflicts แล้ว commit อีกครั้ง${NC}"
+            exit 1
+        fi
+    else
+        echo -e "${GREEN}✅ Local repository อยู่ล่าสุดแล้ว${NC}"
+    fi
+else
+    echo -e "${YELLOW}ℹ️  ไม่พบ remote branch - จะสร้าง branch ใหม่${NC}"
+fi
+
 # Push ไปยัง remote
 echo -e "\n${GREEN}📤 Push ไปยัง remote repository...${NC}"
 if git push origin "$CURRENT_BRANCH"; then

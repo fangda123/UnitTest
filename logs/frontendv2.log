@@ -3,10 +3,7 @@
 > vite
 
 
-  VITE v5.4.11  ready in 113 ms
+  VITE v5.4.11  ready in 118 ms
 
   ➜  Local:   http://localhost:1113/
   ➜  Network: use --host to expose
-3:37:39 PM [vite] hmr update /src/pages/TradingPage.tsx, /src/index.css
-3:37:41 PM [vite] hmr update /src/pages/TradingPage.tsx, /src/index.css
-3:38:54 PM [vite] hmr update /src/pages/TradingPage.tsx, /src/index.css
