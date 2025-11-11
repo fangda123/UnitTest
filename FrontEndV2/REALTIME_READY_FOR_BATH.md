@@ -10,6 +10,7 @@ WebSocket Real-time พร้อมใช้งาน แต่ผมแนะ�
 
 ### 1. ⚡ WebSocket Hook (`useWebSocket`)
 - เชื่อมต่อ Backend WebSocket (`ws://localhost:1111/ws`)
+
 - Auto-authenticate ด้วย JWT Token
 - รับ Real-time notifications
 - Auto-reconnect (ปิดไว้แล้ว)

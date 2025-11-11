@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useWebSocket, useBinanceWebSocket } from '../hooks/useWebSocket';
+import { usePrice } from '../contexts/PriceContext';
+import { useBinanceWebSocket } from '../hooks/useWebSocket';
 import { cryptoAPI } from '../services/api';
 import RealtimePriceCard from '../components/Crypto/RealtimePriceCard';
 import StatsCard from '../components/Stats/StatsCard';
@@ -17,10 +18,8 @@ import { dashboardStats } from '../data/mockData';
 
 /**
  * Dashboard แบบ Real-time
- * เชื่อมต่อ WebSocket สำหรับอัพเดทข้อมูลทันที
+ * ใช้ PriceContext สำหรับอัพเดทราคา real-time
  */
-
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:1111/ws';
 
 function RealtimeDashboard() {
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -29,17 +28,26 @@ function RealtimeDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [priceAnimations, setPriceAnimations] = useState<Map<string, 'up' | 'down' | null>>(new Map());
-  const token = localStorage.getItem('auth_token');
+  
+  // ใช้ PriceContext สำหรับราคา real-time
+  const priceContext = usePrice();
+  const realtimePrices = priceContext?.prices || new Map();
+  const isConnected = priceContext?.isConnected || false;
 
   // ดึงข้อมูลราคา crypto ทั้งหมด
   useEffect(() => {
+    console.log('📊 RealtimeDashboard: Mounted - เริ่มต้นการเชื่อมต่อ');
     fetchCryptoPrices();
     // Auto refresh ทุก 10 วินาที (backup ในกรณีที่ WebSocket ไม่ทำงาน)
     const interval = setInterval(() => {
       console.log('⏰ Auto-refresh ข้อมูลราคา (ทุก 10 วินาที)');
       fetchCryptoPrices(true);
     }, 10000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      console.log('🧹 RealtimeDashboard: Unmounted - ทำความสะอาด intervals และ connections');
+      clearInterval(interval);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -94,22 +102,25 @@ function RealtimeDashboard() {
     }
   };
 
-  // อัพเดทราคาเฉพาะ symbol ที่เปลี่ยน (ทันทีจาก WebSocket)
-  const updatePriceImmediately = useCallback((priceData: any) => {
-    if (!priceData || !priceData.symbol) return;
+  // อัพเดทราคาจาก PriceContext แบบ real-time ทันทีเมื่อ realtimePrices เปลี่ยน (ไม่ใช้ interval)
+  useEffect(() => {
+    if (!realtimePrices || realtimePrices.size === 0) {
+      return; // ถ้ายังไม่มีข้อมูล realtimePrices ให้ข้าม
+    }
     
     setCryptoPrices((prevPrices) => {
       const updatedPrices = prevPrices.map((crypto: any) => {
-        if (crypto.symbol === priceData.symbol) {
+        const realtimePrice = realtimePrices?.get(crypto.symbol);
+        if (realtimePrice) {
           const prevPrice = crypto.price;
-          const newPrice = priceData.price;
+          const newPrice = realtimePrice.price;
           
           // ตั้งค่า animation
           if (prevPrice && prevPrice !== newPrice) {
             const direction = newPrice > prevPrice ? 'up' : 'down';
             setPriceAnimations((prev) => {
               const updated = new Map(prev);
-              updated.set(priceData.symbol, direction);
+              updated.set(crypto.symbol, direction);
               return updated;
             });
             
@@ -117,83 +128,49 @@ function RealtimeDashboard() {
             setTimeout(() => {
               setPriceAnimations((prev) => {
                 const updated = new Map(prev);
-                updated.delete(priceData.symbol);
+                updated.delete(crypto.symbol);
                 return updated;
               });
             }, 500);
             
-            console.log(`⚡ อัพเดทราคา ${priceData.symbol} ทันที: $${prevPrice} → $${newPrice}`);
+            console.log(`⚡ อัพเดทราคา ${crypto.symbol} ทันที: $${prevPrice} → $${newPrice}`);
           }
           
           // อัพเดทข้อมูล
           return {
             ...crypto,
             price: newPrice,
-            highPrice24h: priceData.highPrice24h || crypto.highPrice24h,
-            lowPrice24h: priceData.lowPrice24h || crypto.lowPrice24h,
-            volume24h: priceData.volume24h || crypto.volume24h,
-            priceChangePercent24h: priceData.priceChangePercent24h || crypto.priceChangePercent24h,
-            openPrice24h: priceData.openPrice24h || crypto.openPrice24h,
-            lastUpdate: priceData.lastUpdate || new Date().toISOString(),
+            priceChange: realtimePrice.priceChange || crypto.priceChange,
+            priceChangePercent: realtimePrice.priceChangePercent || crypto.priceChangePercent,
+            high24h: realtimePrice.high24h || crypto.high24h,
+            low24h: realtimePrice.low24h || crypto.low24h,
+            volume24h: realtimePrice.volume24h || crypto.volume24h,
+            lastUpdate: realtimePrice.lastUpdate || crypto.lastUpdate,
           };
         }
         return crypto;
       });
       
-      // ถ้ายังไม่มี symbol นี้ในรายการ ให้เพิ่มเข้าไป
-      const exists = updatedPrices.some((c: any) => c.symbol === priceData.symbol);
-      if (!exists && priceData.symbol) {
-        updatedPrices.push({
-          symbol: priceData.symbol,
-          price: priceData.price,
-          highPrice24h: priceData.highPrice24h,
-          lowPrice24h: priceData.lowPrice24h,
-          volume24h: priceData.volume24h,
-          priceChangePercent24h: priceData.priceChangePercent24h || 0,
-          openPrice24h: priceData.openPrice24h,
-          lastUpdate: priceData.lastUpdate || new Date().toISOString(),
-        });
-      }
+      // เพิ่มเหรียญใหม่จาก realtimePrices (ถ้ายังไม่มี)
+      realtimePrices?.forEach((realtimePrice, symbol) => {
+        const exists = updatedPrices.some((c: any) => c.symbol === symbol);
+        if (!exists) {
+          updatedPrices.push({
+            symbol: realtimePrice.symbol,
+            price: realtimePrice.price,
+            priceChange: realtimePrice.priceChange || 0,
+            priceChangePercent: realtimePrice.priceChangePercent || 0,
+            high24h: realtimePrice.high24h,
+            low24h: realtimePrice.low24h,
+            volume24h: realtimePrice.volume24h,
+            lastUpdate: realtimePrice.lastUpdate || new Date().toISOString(),
+          });
+        }
+      });
       
       return updatedPrices;
     });
-    
-    // อัพเดท previous price
-    setPreviousPrices((prev) => {
-      const updated = new Map(prev);
-      updated.set(priceData.symbol, priceData.price);
-      return updated;
-    });
-  }, []);
-
-  // เชื่อมต่อ Backend WebSocket
-  const { isConnected, lastMessage } = useWebSocket({
-    url: WS_URL,
-    token: token || undefined,
-    onMessage: (message) => {
-      console.log('📨 WebSocket Message:', message);
-      console.log('📨 Message Type:', message.type);
-      console.log('📨 Message Data:', message.data);
-      
-      // อัพเดทราคาทันทีเมื่อได้รับ notification
-      if (message.type === 'crypto.price.update' && message.data) {
-        console.log('⚡ อัพเดทราคาแบบ real-time:', message.data.symbol, message.data);
-        updatePriceImmediately(message.data);
-      } else {
-        console.log('⚠️ ไม่ใช่ crypto.price.update หรือไม่มี data:', {
-          type: message.type,
-          hasData: !!message.data
-        });
-      }
-      
-      // เพิ่ม notification
-      setNotifications(prev => [message, ...prev].slice(0, 10));
-    },
-    onConnected: () => {
-      console.log('✅ เชื่อมต่อ Backend WebSocket สำเร็จ - พร้อมรับข้อมูล real-time');
-    },
-    autoReconnect: true,
-  });
+  }, [realtimePrices]);
 
   // เชื่อมต่อ Binance WebSocket เฉพาะสำหรับ top 3 coins (เพื่อลด connections)
   // ใช้ Backend API แทนสำหรับเหรียญอื่นๆ
@@ -470,11 +447,11 @@ function RealtimeDashboard() {
               </div>
             </div>
 
-            {lastMessage && (
+            {notifications.length > 0 && (
               <div className="pt-4 border-t border-dark-600">
                 <p className="text-sm text-gray-500 mb-2">Last Message</p>
                 <p className="text-xs text-gray-400 font-mono">
-                  {lastMessage.type}
+                  {notifications[0]?.type || 'N/A'}
                 </p>
               </div>
             )}

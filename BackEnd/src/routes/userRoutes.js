@@ -13,16 +13,29 @@ const websocketService = require('../services/websocketService');
 const router = express.Router();
 
 /**
- * User Management Routes
- * เส้นทางสำหรับจัดการข้อมูลผู้ใช้ (CRUD)
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management endpoints
  */
 
 // ใช้ middleware protect กับทุก route
 router.use(protect);
 
-// @route   GET /api/users
-// @desc    ดึงข้อมูลผู้ใช้ทั้งหมด (Admin เท่านั้น)
-// @access  Private/Admin
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: ดึงข้อมูลผู้ใช้ทั้งหมด (Admin เท่านั้น)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: ดึงข้อมูลสำเร็จ (Admin only)
+ *       403:
+ *         description: ไม่มีสิทธิ์ (User ธรรมดา)
+ */
 router.get('/', authorize('admin'), getUsers);
 
 // @route   GET /api/users/:id

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script สำหรับรัน Backend, FrontEndV2, และ FrontEnd พร้อมกัน
+# Script สำหรับรัน Backend, FrontEndV2, และ FrontEnd พร้อมกันด้วย PM2
 # Ports:
 # - Backend: 1111
 # - FrontEndV2: 1113
@@ -52,99 +52,78 @@ check_dependencies() {
     print_success "Dependencies ครบถ้วนแล้ว"
 }
 
+# ตรวจสอบว่า PM2 ติดตั้งแล้วหรือยัง
+check_pm2() {
+    if ! command -v pm2 &> /dev/null; then
+        print_error "PM2 ไม่ได้ติดตั้ง!"
+        print_info "กำลังติดตั้ง PM2..."
+        npm install -g pm2
+        if [ $? -ne 0 ]; then
+            print_error "ไม่สามารถติดตั้ง PM2 ได้ กรุณาติดตั้งด้วยตนเอง: npm install -g pm2"
+            exit 1
+        fi
+        print_success "ติดตั้ง PM2 สำเร็จ"
+    else
+        print_success "PM2 พร้อมใช้งาน"
+    fi
+}
+
 # ฟังก์ชันสำหรับหยุด services
 stop_services() {
-    print_info "กำลังหยุด services..."
+    print_info "กำลังหยุด services ด้วย PM2..."
     
-    # หยุด Backend
-    if [ -f "BackEnd/.pid" ]; then
-        PID=$(cat BackEnd/.pid)
-        if ps -p $PID > /dev/null 2>&1; then
-            kill $PID 2>/dev/null
-            print_success "หยุด Backend (PID: $PID)"
-        fi
-        rm -f BackEnd/.pid
-    fi
+    # หยุด PM2 processes
+    pm2 stop ecosystem.config.js 2>/dev/null
+    pm2 delete ecosystem.config.js 2>/dev/null
     
-    # หยุด FrontEndV2
-    if [ -f "FrontEndV2/.pid" ]; then
-        PID=$(cat FrontEndV2/.pid)
-        if ps -p $PID > /dev/null 2>&1; then
-            kill $PID 2>/dev/null
-            print_success "หยุด FrontEndV2 (PID: $PID)"
-        fi
-        rm -f FrontEndV2/.pid
-    fi
-    
-    # หยุด FrontEnd
-    if [ -f "FrontEnd/.pid" ]; then
-        PID=$(cat FrontEnd/.pid)
-        if ps -p $PID > /dev/null 2>&1; then
-            kill $PID 2>/dev/null
-            print_success "หยุด FrontEnd (PID: $PID)"
-        fi
-        rm -f FrontEnd/.pid
-    fi
-    
-    # หยุด processes ที่ใช้ ports
+    # หยุด processes ที่ใช้ ports (backup)
     lsof -ti:1111 | xargs kill -9 2>/dev/null
     lsof -ti:1112 | xargs kill -9 2>/dev/null
     lsof -ti:1113 | xargs kill -9 2>/dev/null
     
+    # ลบ PID files
+    rm -f BackEnd/.pid
+    rm -f FrontEndV2/.pid
+    rm -f FrontEnd/.pid
+    
     print_success "หยุด services ทั้งหมดแล้ว"
 }
 
-# ฟังก์ชันสำหรับรัน Backend
-start_backend() {
-    print_info "กำลังเริ่มต้น Backend (Port: 1111)..."
-    cd BackEnd
+# ฟังก์ชันสำหรับรัน services ทั้งหมดด้วย PM2
+start_services() {
+    print_info "กำลังเริ่มต้น services ทั้งหมดด้วย PM2..."
     
-    # รันใน background และบันทึก PID
-    npm start > ../logs/backend.log 2>&1 &
-    BACKEND_PID=$!
-    echo $BACKEND_PID > .pid
+    # เริ่มต้น services ด้วย PM2
+    pm2 start ecosystem.config.js
     
-    cd ..
-    print_success "Backend เริ่มทำงานแล้ว (PID: $BACKEND_PID)"
-    print_info "Logs: tail -f logs/backend.log"
-}
-
-# ฟังก์ชันสำหรับรัน FrontEndV2
-start_frontendv2() {
-    print_info "กำลังเริ่มต้น FrontEndV2 (Port: 1113)..."
-    cd FrontEndV2
-    
-    # รันใน background และบันทึก PID
-    npm run dev > ../logs/frontendv2.log 2>&1 &
-    FRONTENDV2_PID=$!
-    echo $FRONTENDV2_PID > .pid
-    
-    cd ..
-    print_success "FrontEndV2 เริ่มทำงานแล้ว (PID: $FRONTENDV2_PID)"
-    print_info "Logs: tail -f logs/frontendv2.log"
-}
-
-# ฟังก์ชันสำหรับรัน FrontEnd
-start_frontend() {
-    print_info "กำลังเริ่มต้น FrontEnd (Port: 1112)..."
-    cd FrontEnd
-    
-    # รันใน background และบันทึก PID
-    npm run dev > ../logs/frontend.log 2>&1 &
-    FRONTEND_PID=$!
-    echo $FRONTEND_PID > .pid
-    
-    cd ..
-    print_success "FrontEnd เริ่มทำงานแล้ว (PID: $FRONTEND_PID)"
-    print_info "Logs: tail -f logs/frontend.log"
+    if [ $? -eq 0 ]; then
+        print_success "Services เริ่มทำงานแล้วด้วย PM2"
+        print_info "ใช้คำสั่งต่อไปนี้เพื่อจัดการ:"
+        print_info "  - pm2 status          : ดูสถานะ"
+        print_info "  - pm2 logs            : ดู logs ทั้งหมด"
+        print_info "  - pm2 logs backend    : ดู logs Backend"
+        print_info "  - pm2 logs frontendv2 : ดู logs FrontEndV2"
+        print_info "  - pm2 logs frontend   : ดู logs FrontEnd"
+        print_info "  - pm2 restart all     : รีสตาร์ททั้งหมด"
+        print_info "  - pm2 stop all        : หยุดทั้งหมด"
+        print_info "  - pm2 delete all      : ลบทั้งหมด"
+    else
+        print_error "ไม่สามารถเริ่มต้น services ได้"
+        exit 1
+    fi
 }
 
 # ฟังก์ชันสำหรับแสดงสถานะ
 show_status() {
     echo ""
     print_info "═══════════════════════════════════════════════════════"
-    print_success "🚀 Services เริ่มทำงานแล้ว!"
+    print_success "🚀 Services เริ่มทำงานแล้วด้วย PM2!"
     print_info "═══════════════════════════════════════════════════════"
+    echo ""
+    
+    # แสดงสถานะ PM2
+    pm2 status
+    
     echo ""
     print_info "📍 URLs:"
     echo -e "   ${GREEN}Backend:${NC}     http://localhost:1111"
@@ -152,12 +131,17 @@ show_status() {
     echo -e "   ${GREEN}FrontEndV2:${NC}   http://localhost:1113"
     echo -e "   ${GREEN}FrontEnd:${NC}     http://localhost:1112"
     echo ""
-    print_info "📋 Logs:"
-    echo -e "   ${BLUE}Backend:${NC}     tail -f logs/backend.log"
-    echo -e "   ${BLUE}FrontEndV2:${NC}   tail -f logs/frontendv2.log"
-    echo -e "   ${BLUE}FrontEnd:${NC}     tail -f logs/frontend.log"
+    print_info "📋 PM2 Commands:"
+    echo -e "   ${BLUE}pm2 status${NC}          : ดูสถานะ"
+    echo -e "   ${BLUE}pm2 logs${NC}            : ดู logs ทั้งหมด"
+    echo -e "   ${BLUE}pm2 logs backend${NC}    : ดู logs Backend"
+    echo -e "   ${BLUE}pm2 logs frontendv2${NC} : ดู logs FrontEndV2"
+    echo -e "   ${BLUE}pm2 logs frontend${NC}   : ดู logs FrontEnd"
+    echo -e "   ${BLUE}pm2 restart all${NC}     : รีสตาร์ททั้งหมด"
+    echo -e "   ${BLUE}pm2 stop all${NC}        : หยุดทั้งหมด"
+    echo -e "   ${BLUE}pm2 delete all${NC}      : ลบทั้งหมด"
     echo ""
-    print_info "🛑 หยุด services: ./stop.sh หรือ Ctrl+C"
+    print_info "🛑 หยุด services: ./stop.sh หรือ pm2 stop all"
     print_info "═══════════════════════════════════════════════════════"
     echo ""
 }
@@ -166,6 +150,9 @@ show_status() {
 main() {
     # สร้างโฟลเดอร์ logs ถ้ายังไม่มี
     mkdir -p logs
+    
+    # ตรวจสอบ PM2
+    check_pm2
     
     # หยุด services เก่าก่อน (ถ้ามี)
     stop_services
@@ -176,27 +163,19 @@ main() {
     # รอสักครู่
     sleep 1
     
-    # เริ่มต้น services
-    start_backend
-    sleep 2
+    # เริ่มต้น services ทั้งหมดด้วย PM2
+    start_services
     
-    start_frontendv2
-    sleep 2
-    
-    start_frontend
+    # รอให้ services เริ่มทำงาน
     sleep 3
     
     # แสดงสถานะ
     show_status
     
-    # รอให้ user กด Ctrl+C
-    print_info "กด Ctrl+C เพื่อหยุด services..."
-    
-    # จัดการ signal สำหรับ graceful shutdown
-    trap 'stop_services; exit 0' INT TERM
-    
-    # รอให้ processes ทำงาน
-    wait
+    # แสดง logs แบบ real-time
+    print_info "กำลังแสดง logs แบบ real-time (กด Ctrl+C เพื่อออก)..."
+    sleep 2
+    pm2 logs --lines 50
 }
 
 # รัน main function

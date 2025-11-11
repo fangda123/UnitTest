@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useWebSocket } from '../hooks/useWebSocket';
+import { usePrice } from '../contexts/PriceContext';
 import { cryptoAPI } from '../services/api';
 import { RefreshCw, TrendingUp, TrendingDown, Search, Zap } from 'lucide-react';
 import LineChart from '../components/Charts/LineChart';
@@ -34,15 +34,24 @@ function CryptoPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [previousPrices, setPreviousPrices] = useState<Map<string, number>>(new Map());
   const [priceAnimations, setPriceAnimations] = useState<Map<string, 'up' | 'down' | null>>(new Map());
-  const token = localStorage.getItem('auth_token');
+  
+  // ใช้ PriceContext สำหรับราคา real-time
+  const priceContext = usePrice();
+  const realtimePrices = priceContext?.prices || new Map();
+  const isConnected = priceContext?.isConnected || false;
 
   useEffect(() => {
+    console.log('📊 CryptoPage: Mounted - เริ่มต้นการเชื่อมต่อ');
     fetchAllData();
     // Auto refresh ทุก 10 วินาที
     const interval = setInterval(() => {
       fetchPrices(true);
     }, 10000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      console.log('🧹 CryptoPage: Unmounted - ทำความสะอาด intervals และ connections');
+      clearInterval(interval);
+    };
   }, []);
 
   useEffect(() => {
@@ -98,22 +107,25 @@ function CryptoPage() {
     }
   };
 
-  // อัพเดทราคาเฉพาะ symbol ที่เปลี่ยน (ทันทีจาก WebSocket)
-  const updatePriceImmediately = useCallback((priceData: any) => {
-    if (!priceData || !priceData.symbol) return;
+  // อัพเดทราคาจาก PriceContext แบบ real-time ทันทีเมื่อ realtimePrices เปลี่ยน (ไม่ใช้ interval)
+  useEffect(() => {
+    if (!realtimePrices || realtimePrices.size === 0) {
+      return; // ถ้ายังไม่มีข้อมูล realtimePrices ให้ข้าม
+    }
     
     setPrices((prevPrices) => {
       const updatedPrices = prevPrices.map((crypto: any) => {
-        if (crypto.symbol === priceData.symbol) {
+        const realtimePrice = realtimePrices?.get(crypto.symbol);
+        if (realtimePrice) {
           const prevPrice = crypto.price;
-          const newPrice = priceData.price;
+          const newPrice = realtimePrice.price;
           
           // ตั้งค่า animation
           if (prevPrice && prevPrice !== newPrice) {
             const direction = newPrice > prevPrice ? 'up' : 'down';
             setPriceAnimations((prev) => {
               const updated = new Map(prev);
-              updated.set(priceData.symbol, direction);
+              updated.set(crypto.symbol, direction);
               return updated;
             });
             
@@ -121,7 +133,7 @@ function CryptoPage() {
             setTimeout(() => {
               setPriceAnimations((prev) => {
                 const updated = new Map(prev);
-                updated.delete(priceData.symbol);
+                updated.delete(crypto.symbol);
                 return updated;
               });
             }, 500);
@@ -131,74 +143,53 @@ function CryptoPage() {
           return {
             ...crypto,
             price: newPrice,
-            high24h: priceData.highPrice24h || crypto.high24h,
-            low24h: priceData.lowPrice24h || crypto.low24h,
-            volume24h: priceData.volume24h || crypto.volume24h,
-            priceChangePercent: priceData.priceChangePercent24h || crypto.priceChangePercent,
-            priceChangePercent24h: priceData.priceChangePercent24h || crypto.priceChangePercent24h,
-            lastUpdate: priceData.lastUpdate || new Date().toISOString(),
+            priceChange: realtimePrice.priceChange || crypto.priceChange,
+            priceChangePercent: realtimePrice.priceChangePercent || crypto.priceChangePercent,
+            high24h: realtimePrice.high24h || crypto.high24h,
+            low24h: realtimePrice.low24h || crypto.low24h,
+            volume24h: realtimePrice.volume24h || crypto.volume24h,
+            lastUpdate: realtimePrice.lastUpdate || crypto.lastUpdate,
           };
         }
         return crypto;
       });
       
-      // ถ้ายังไม่มี symbol นี้ในรายการ ให้เพิ่มเข้าไป
-      const exists = updatedPrices.some((c: any) => c.symbol === priceData.symbol);
-      if (!exists && priceData.symbol) {
-        updatedPrices.push({
-          symbol: priceData.symbol,
-          price: priceData.price,
-          priceChange: 0,
-          priceChangePercent: priceData.priceChangePercent24h || 0,
-          priceChangePercent24h: priceData.priceChangePercent24h || 0,
-          high24h: priceData.highPrice24h,
-          low24h: priceData.lowPrice24h,
-          volume24h: priceData.volume24h,
-          lastUpdate: priceData.lastUpdate || new Date().toISOString(),
-        });
-      }
+      // เพิ่มเหรียญใหม่จาก realtimePrices (ถ้ายังไม่มี)
+      realtimePrices?.forEach((realtimePrice, symbol) => {
+        const exists = updatedPrices.some((c: any) => c.symbol === symbol);
+        if (!exists) {
+          updatedPrices.push({
+            symbol: realtimePrice.symbol,
+            price: realtimePrice.price,
+            priceChange: realtimePrice.priceChange || 0,
+            priceChangePercent: realtimePrice.priceChangePercent || 0,
+            high24h: realtimePrice.high24h,
+            low24h: realtimePrice.low24h,
+            volume24h: realtimePrice.volume24h,
+            lastUpdate: realtimePrice.lastUpdate || new Date().toISOString(),
+          });
+        }
+      });
       
       return updatedPrices;
     });
     
-    // อัพเดท previous price
-    setPreviousPrices((prev) => {
-      const updated = new Map(prev);
-      updated.set(priceData.symbol, priceData.price);
-      return updated;
-    });
-    
     // อัพเดท stats ถ้าเป็น selected crypto
-    if (priceData.symbol === selectedCrypto) {
+    const selectedRealtimePrice = realtimePrices?.get(selectedCrypto);
+    if (selectedRealtimePrice) {
       setStats24h((prev: any) => {
         if (!prev) return prev;
         return {
           ...prev,
-          price: priceData.price,
-          high24h: priceData.highPrice24h || prev.high24h,
-          low24h: priceData.lowPrice24h || prev.low24h,
-          volume24h: priceData.volume24h || prev.volume24h,
-          priceChangePercent: priceData.priceChangePercent24h || prev.priceChangePercent,
+          price: selectedRealtimePrice.price,
+          high24h: selectedRealtimePrice.high24h || prev.high24h,
+          low24h: selectedRealtimePrice.low24h || prev.low24h,
+          volume24h: selectedRealtimePrice.volume24h || prev.volume24h,
+          priceChangePercent: selectedRealtimePrice.priceChangePercent || prev.priceChangePercent,
         };
       });
     }
-  }, [selectedCrypto]);
-
-  // เชื่อมต่อ Backend WebSocket
-  const { isConnected } = useWebSocket({
-    url: WS_URL,
-    token: token || undefined,
-    onMessage: (message) => {
-      // อัพเดทราคาทันทีเมื่อได้รับ notification
-      if (message.type === 'crypto.price.update' && message.data) {
-        updatePriceImmediately(message.data);
-      }
-    },
-    onConnected: () => {
-      console.log('✅ CryptoPage: เชื่อมต่อ Backend WebSocket สำเร็จ');
-    },
-    autoReconnect: true,
-  });
+  }, [realtimePrices, selectedCrypto]);
 
   const fetchHistory = async () => {
     try {

@@ -164,17 +164,27 @@ export const cryptoAPI = {
   getAll: () => apiClient.get('/api/crypto/prices'),
   
   // ดึงราคา Bitcoin
-  getBTC: () => apiClient.get('/api/crypto/prices/BTCUSDT'),
+  getBTC: () => apiClient.get('/api/crypto/price/BTCUSDT'),
   
   // ดึงราคา Ethereum
-  getETH: () => apiClient.get('/api/crypto/prices/ETHUSDT'),
+  getETH: () => apiClient.get('/api/crypto/price/ETHUSDT'),
   
   // ดึงราคาเหรียญเฉพาะ
-  getPrice: (symbol: string) => apiClient.get(`/api/crypto/prices/${symbol}`),
+  getPrice: (symbol: string) => apiClient.get(`/api/crypto/price/${symbol}`),
   
   // ดึงประวัติราคา
   getHistory: (symbol: string, params?: { limit?: number }) => 
     apiClient.get(`/api/crypto/history/${symbol}`, { params }),
+  
+  // ดึงข้อมูล klines (candlestick) ย้อนหลัง - สำหรับกราฟ
+  getKlines: (symbol: string, params?: { 
+    interval?: string; // 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M
+    limit?: number; // จำนวนข้อมูล (max: 1000)
+    years?: number; // จำนวนปีย้อนหลัง (เช่น 1 = 1 ปี)
+    startTime?: number; // Unix timestamp (milliseconds)
+    endTime?: number; // Unix timestamp (milliseconds)
+  }) => 
+    apiClient.get(`/api/crypto/klines/${symbol}`, { params }),
   
   // สถิติ 24 ชั่วโมง
   getStats24h: (symbol: string) => apiClient.get(`/api/crypto/stats/${symbol}?period=24h`),
@@ -241,6 +251,42 @@ export const tradingAPI = {
   // ดึงสัญญาณการเทรด
   getTradingSignal: (symbol: string = 'BTCUSDT') =>
     apiClient.get(`/api/trading/signal/${symbol}`),
+  
+  // ดึงสถิติการเทรด
+  getTradingStatistics: (symbol: string = 'BTCUSDT', params?: { limit?: number }) =>
+    apiClient.get(`/api/trading/statistics/${symbol}`, { params }),
+};
+
+// ========================================
+// 💹 Trading V4 APIs (Advanced ML Trading)
+// ========================================
+
+export const tradingV4API = {
+  // ดึงสัญญาณการเทรดพร้อม ML prediction
+  getTradingSignal: (symbol: string = 'BTCUSDT') =>
+    apiClient.get(`/api/trading-v4/signal/${symbol}`),
+  
+  // ทำนายกำไรสำหรับ timeframes ต่างๆ (เน้น 1 วัน)
+  predictProfit: (symbol: string = 'BTCUSDT', investment: number, timeframe: string = '1d') =>
+    apiClient.get(`/api/trading-v4/predict-profit`, {
+      params: { symbol, investment, timeframe },
+    }),
+  
+  // ดึง ML model features
+  getFeatures: (symbol: string = 'BTCUSDT') =>
+    apiClient.get(`/api/trading-v4/features/${symbol}`),
+  
+  // ดึงข้อมูลประวัติ
+  getHistoricalData: (symbol: string = 'BTCUSDT', limit: number = 1000) =>
+    apiClient.get(`/api/trading-v4/historical/${symbol}`, { params: { limit } }),
+  
+  // Retrain ML model
+  retrainModel: (symbol: string = 'BTCUSDT') =>
+    apiClient.post(`/api/trading-v4/retrain`, null, { params: { symbol } }),
+  
+  // ดึง optimal periods สำหรับ indicators
+  getOptimalPeriods: (symbol: string = 'BTCUSDT') =>
+    apiClient.get(`/api/trading-v4/optimal-periods`, { params: { symbol } }),
 };
 
 // ========================================

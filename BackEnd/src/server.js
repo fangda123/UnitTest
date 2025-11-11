@@ -9,6 +9,8 @@ const priceAggregator = require('./aggregators/priceAggregator');
 const marketStatsAggregator = require('./aggregators/marketStatsAggregator');
 const workersManager = require('./workers');
 const tradingService = require('./services/tradingService');
+const tradingDataCollector = require('./microservices/trading/dataCollector');
+const tradingV4Service = require('./microservices/trading-v4');
 const websocketService = require('./services/websocketService');
 const logger = require('./utils/logger');
 
@@ -89,7 +91,11 @@ const startServer = async () => {
       logger.info('🚀 เริ่มต้น Workers');
       workersManager.start(symbols);
 
-      // เริ่มต้น Trading Service - อัพเดตราคา BTC อัตโนมัติ
+      // เริ่มต้น Trading Data Collector - เก็บข้อมูล BTC และคำนวณสถิติ
+      logger.info('🚀 เริ่มต้น Trading Data Collector');
+      tradingDataCollector.start();
+
+      // เริ่มต้น Trading Service - อัพเดตราคา BTC อัตโนมัติ (backup)
       logger.info('🚀 เริ่มต้น Trading Service');
       setInterval(async () => {
         try {
@@ -98,6 +104,19 @@ const startServer = async () => {
           logger.error('❌ Error updating trading price:', error.message);
         }
       }, 5000); // อัพเดททุก 5 วินาที
+
+      // เริ่มต้น Trading V4 Microservice (Advanced ML Trading)
+      if (process.env.ENABLE_TRADING_V4 !== 'false') {
+        logger.info('🚀 เริ่มต้น Trading V4 Microservice (Advanced ML Trading)');
+        setTimeout(async () => {
+          try {
+            await tradingV4Service.start();
+            logger.info('✅ Trading V4 Microservice started successfully');
+          } catch (error) {
+            logger.error('❌ Error starting Trading V4 Microservice:', error.message);
+          }
+        }, 10000); // รอ 10 วินาทีให้ระบบอื่นเริ่มต้นเสร็จก่อน
+      }
     }
 
     // เริ่ม HTTP Server
@@ -141,6 +160,14 @@ const gracefulShutdown = async (signal) => {
 
     // หยุด Binance Data Collector
     binanceDataCollector.stop();
+
+    // หยุด Trading Data Collector
+    tradingDataCollector.stop();
+
+    // หยุด Trading V4 Microservice
+    if (tradingV4Service) {
+      tradingV4Service.stop();
+    }
 
     // หยุด Aggregators
     priceAggregator.stop();

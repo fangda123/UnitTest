@@ -121,20 +121,51 @@ const tradingSimulationSchema = new mongoose.Schema(
       buyPercentage: {
         type: Number,
         default: 50, // 50% ของเงินที่มี
-        min: 1,
+        min: 1, // อย่างน้อย 1%
         max: 100,
+      },
+      // จำนวนเงินขั้นต่ำในการซื้อ (USD)
+      minBuyAmount: {
+        type: Number,
+        default: 10, // $10
+        min: 0.01, // อนุญาตให้มีค่าต่ำสุด 0.01 USD (สำหรับเงินลงทุนน้อย)
+      },
+      // จำนวนเงินสูงสุดในการซื้อ (USD)
+      maxBuyAmount: {
+        type: Number,
+        default: 1000, // $1000
+        min: 0.01, // อนุญาตให้มีค่าต่ำสุด 0.01 USD (สำหรับเงินลงทุนน้อย)
       },
       // เปอร์เซ็นต์ของเหรียญที่จะขายต่อครั้ง
       sellPercentage: {
         type: Number,
         default: 50, // 50% ของเหรียญที่มี
-        min: 1,
+        min: 1, // อย่างน้อย 1%
         max: 100,
+      },
+      // จำนวนเหรียญขั้นต่ำในการขาย
+      minSellAmount: {
+        type: Number,
+        default: 0.0001, // 0.0001 BTC
+        min: 0,
+      },
+      // จำนวนเหรียญสูงสุดในการขาย
+      maxSellAmount: {
+        type: Number,
+        default: 1, // 1 BTC
+        min: 0,
       },
       // ระดับความมั่นใจขั้นต่ำในการเทรด
       minConfidence: {
         type: Number,
-        default: 60, // 60%
+        default: 60, // เพิ่มเป็น 60% เพื่อลดการเทรดและลดความเสี่ยง
+        min: 0,
+        max: 100,
+      },
+      // เปอร์เซ็นต์ของเงินลงทุนที่จะซื้อในการลงทุนครั้งแรก (Force Buy)
+      initialBuyPercentage: {
+        type: Number,
+        default: 0, // 0% = ไม่ซื้ออัตโนมัติ, ให้รอสัญญาณ
         min: 0,
         max: 100,
       },

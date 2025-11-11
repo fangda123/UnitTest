@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI, saveAuth } from '../services/api';
 import { Mail, Lock, User, Phone, MapPin, UserPlus, AlertCircle, CheckCircle } from 'lucide-react';
+import Footer from '../components/Layout/Footer';
 
 /**
  * หน้า Register สำหรับสมัครสมาชิก
@@ -86,29 +87,33 @@ function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 flex items-center justify-center p-4">
-        <div className="bg-dark-800 rounded-xl shadow-2xl p-8 border border-success max-w-md w-full text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success/20 mb-4">
-            <CheckCircle className="w-8 h-8 text-success" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-100 mb-2">สมัครสมาชิกสำเร็จ!</h2>
-          <p className="text-gray-400 mb-4">กำลังพาคุณเข้าสู่ Dashboard...</p>
-          <div className="flex justify-center">
-            <div className="w-8 h-8 border-4 border-success border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 flex flex-col">
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="bg-dark-800 rounded-xl shadow-2xl p-8 border border-success max-w-md w-full text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success/20 mb-4">
+              <CheckCircle className="w-8 h-8 text-success" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-100 mb-2">สมัครสมาชิกสำเร็จ!</h2>
+            <p className="text-gray-400 mb-4">กำลังพาคุณเข้าสู่ Dashboard...</p>
+            <div className="flex justify-center">
+              <div className="w-8 h-8 border-4 border-success border-t-transparent rounded-full animate-spin"></div>
+            </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 flex items-center justify-center p-4">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-success/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl"></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 flex flex-col">
+      <div className="flex-1 flex items-center justify-center p-4 relative">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-success/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl"></div>
+        </div>
 
-      <div className="relative z-10 w-full max-w-2xl">
+        <div className="relative z-10 w-full max-w-2xl">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-success to-primary-500 shadow-glow mb-4">
             <UserPlus className="w-8 h-8 text-white" />
@@ -308,7 +313,11 @@ function RegisterPage() {
             </p>
           </div>
         </div>
+        </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

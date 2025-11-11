@@ -46,9 +46,37 @@ const registerLimiter = rateLimit({
   skip: () => isTestEnv, // ข้าม rate limit ใน test environment
 });
 
+// สำหรับ Trading API (ต้องอัพเดทบ่อย)
+const tradingLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 นาที
+  max: isTestEnv ? 10000 : (isDevEnv ? 500 : 100), // เพิ่ม limit เป็น 500 ใน development
+  message: {
+    success: false,
+    message: 'คุณส่ง request มากเกินไป กรุณาลองใหม่ภายหลัง',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => isTestEnv,
+});
+
+// สำหรับ Trading Simulations (ต้องอัพเดทบ่อย)
+const tradingSimulationLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 นาที
+  max: isTestEnv ? 10000 : (isDevEnv ? 300 : 100), // อนุญาตให้ request บ่อยขึ้น
+  message: {
+    success: false,
+    message: 'คุณส่ง request มากเกินไป กรุณาลองใหม่ภายหลัง',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => isTestEnv,
+});
+
 module.exports = {
   apiLimiter,
   authLimiter,
   registerLimiter,
+  tradingLimiter,
+  tradingSimulationLimiter,
 };
 

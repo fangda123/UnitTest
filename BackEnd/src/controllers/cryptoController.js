@@ -150,7 +150,7 @@ const getAllCryptoPrices = async (req, res, next) => {
 };
 
 /**
- * @desc    ดึงประวัติราคา crypto
+ * @desc    ดึงประวัติราคา crypto จาก database
  * @route   GET /api/crypto/history/:symbol
  * @access  Public
  */
@@ -177,6 +177,91 @@ const getCryptoPriceHistory = async (req, res, next) => {
       count: history.length,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    ดึงประวัติราคา crypto ย้อนหลังจาก Binance API (klines/candlestick)
+ * @route   GET /api/crypto/klines/:symbol
+ * @access  Public
+ * @param   {string} symbol - Symbol เช่น BTCUSDT
+ * @param   {string} interval - Time interval (1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M)
+ * @param   {number} limit - จำนวนข้อมูล (default: 500, max: 1000)
+ * @param   {number} startTime - Unix timestamp (milliseconds) - เริ่มต้น
+ * @param   {number} endTime - Unix timestamp (milliseconds) - สิ้นสุด
+ * @param   {number} years - จำนวนปีย้อนหลัง (เช่น 1 = 1 ปี, 2 = 2 ปี)
+ */
+const getCryptoKlines = async (req, res, next) => {
+  try {
+    const { symbol } = req.params;
+    const { 
+      interval = '1d', // Default: 1 วัน
+      limit = 500, 
+      startTime, 
+      endTime,
+      years // จำนวนปีย้อนหลัง
+    } = req.query;
+
+    const apiUrl = process.env.BINANCE_API_URL || 'https://api.binance.com';
+    const params = {
+      symbol: symbol.toUpperCase(),
+      interval: interval, // 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M
+      limit: Math.min(parseInt(limit) || 500, 1000), // Binance limit: max 1000
+    };
+
+    // ถ้ามี years ให้คำนวณ startTime และ endTime
+    if (years) {
+      const yearsBack = parseFloat(years);
+      const now = Date.now();
+      const oneYearInMs = 365 * 24 * 60 * 60 * 1000;
+      params.endTime = now;
+      params.startTime = now - (yearsBack * oneYearInMs);
+    } else {
+      // ใช้ startTime และ endTime ที่ส่งมา (ถ้ามี)
+      if (startTime) params.startTime = parseInt(startTime);
+      if (endTime) params.endTime = parseInt(endTime);
+    }
+
+    // ดึงข้อมูลจาก Binance API
+    const response = await axios.get(`${apiUrl}/api/v3/klines`, {
+      params,
+      timeout: 30000, // 30 seconds timeout
+    });
+
+    // แปลงข้อมูลจาก Binance format เป็น format ของเรา
+    // Binance klines format: [Open time, Open, High, Low, Close, Volume, Close time, ...]
+    const klines = response.data.map((kline) => ({
+      symbol: symbol.toUpperCase(),
+      openTime: kline[0],
+      open: parseFloat(kline[1]),
+      high: parseFloat(kline[2]),
+      low: parseFloat(kline[3]),
+      close: parseFloat(kline[4]),
+      volume: parseFloat(kline[5]),
+      closeTime: kline[6],
+      quoteVolume: parseFloat(kline[7]),
+      trades: kline[8],
+      takerBuyBaseVolume: parseFloat(kline[9]),
+      takerBuyQuoteVolume: parseFloat(kline[10]),
+      // เพิ่มข้อมูลที่ใช้บ่อย
+      price: parseFloat(kline[4]), // ใช้ close price
+      timestamp: kline[0],
+      date: new Date(kline[0]),
+    }));
+
+    res.json({
+      success: true,
+      data: klines,
+      count: klines.length,
+      symbol: symbol.toUpperCase(),
+      interval,
+      startTime: params.startTime ? new Date(params.startTime) : null,
+      endTime: params.endTime ? new Date(params.endTime) : null,
+      years: years ? parseFloat(years) : null,
+    });
+  } catch (error) {
+    logger.error(`[Crypto] ❌ Error fetching klines for ${req.params.symbol}:`, error.message);
     next(error);
   }
 };
@@ -252,5 +337,6 @@ module.exports = {
   getCryptoPrice,
   getAllCryptoPrices,
   getCryptoPriceHistory,
+  getCryptoKlines,
   getCryptoStats,
 };

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI, saveAuth } from '../services/api';
 import { Mail, Lock, LogIn, UserPlus, AlertCircle } from 'lucide-react';
+import Footer from '../components/Layout/Footer';
 
 /**
  * หน้า Login สำหรับเข้าสู่ระบบ
@@ -67,7 +68,8 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 flex flex-col">
+      <div className="flex-1 flex items-center justify-center p-4 relative">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl"></div>
@@ -226,6 +228,10 @@ function LoginPage() {
             สำหรับทดสอบ: user@example.com / User123! หรือ admin@example.com / Admin123!
           </p>
         </div>
+      </div>
+      
+      {/* Footer */}
+      <Footer />
       </div>
     </div>
   );

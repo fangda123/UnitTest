@@ -6,6 +6,8 @@ const dashboardRoutes = require('./dashboardRoutes');
 const internalRoutes = require('./internalRoutes');
 const aggregationRoutes = require('./aggregationRoutes');
 const tradingRoutes = require('./tradingRoutes');
+const tradingV3Routes = require('./tradingV3Routes');
+const tradingV4Routes = require('./tradingV4Routes');
 
 const router = express.Router();
 
@@ -32,6 +34,8 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/internal', internalRoutes);
 router.use('/aggregation', aggregationRoutes);
 router.use('/trading', tradingRoutes);
+router.use('/trading-v3', tradingV3Routes);
+router.use('/trading-v4', tradingV4Routes);
 
 module.exports = router;
 

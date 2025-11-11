@@ -20,6 +20,7 @@ export interface WebSocketMessage {
 interface UseWebSocketOptions {
   url: string;
   token?: string;
+  enabled?: boolean; // เปิด/ปิด WebSocket
   onMessage?: (message: WebSocketMessage) => void;
   onConnected?: () => void;
   onDisconnected?: () => void;
@@ -32,6 +33,7 @@ export function useWebSocket(options: UseWebSocketOptions) {
   const {
     url,
     token,
+    enabled = true, // Default: เปิด WebSocket
     onMessage,
     onConnected,
     onDisconnected,
@@ -76,10 +78,11 @@ export function useWebSocket(options: UseWebSocketOptions) {
         try {
           const rawData = event.data;
           const message: WebSocketMessage = JSON.parse(rawData);
-          console.log('📨 รับข้อความ WebSocket (Raw):', rawData);
-          console.log('📨 รับข้อความ WebSocket (Parsed):', message);
-          console.log('📨 Message Type:', message.type);
-          console.log('📨 Message Data:', message.data);
+          
+          // ลด console logs - แสดงแค่เมื่อมี error หรือ debug mode
+          if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_WS === 'true') {
+            console.log('📨 WebSocket Message:', message.type, message.data);
+          }
           
           setLastMessage(message);
 
@@ -156,15 +159,24 @@ export function useWebSocket(options: UseWebSocketOptions) {
    * Connect เมื่อ mount, Disconnect เมื่อ unmount
    */
   useEffect(() => {
+    if (!enabled) {
+      // ถ้า disabled ให้ disconnect ถ้ามีการเชื่อมต่ออยู่
+      if (ws.current) {
+        disconnect();
+      }
+      return;
+    }
+
     mountedRef.current = true;
     connect();
 
     return () => {
+      console.log('🧹 Cleanup WebSocket connection');
       mountedRef.current = false;
       disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // ไม่ใส่ dependencies เพื่อป้องกัน reconnect loop
+  }, [enabled]); // ตรวจสอบ enabled เพื่อเปิด/ปิด WebSocket
 
   return {
     isConnected,
@@ -221,8 +233,10 @@ export function useBinanceWebSocket(symbol: string = 'btcusdt') {
 
     // Cleanup
     return () => {
+      console.log(`🧹 Cleanup Binance WebSocket: ${symbol}`);
       if (ws.current) {
         ws.current.close();
+        ws.current = null;
       }
     };
   }, [symbol]);

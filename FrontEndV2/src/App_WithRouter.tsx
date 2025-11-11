@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { isAuthenticated, isAdmin } from './services/api';
+import { TradingProvider } from './contexts/TradingContext';
+import { PriceProvider } from './contexts/PriceContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardLayout from './components/Layout/DashboardLayout';
@@ -7,6 +9,9 @@ import App from './App'; // Dashboard หลัก
 import RealtimeDashboard from './pages/RealtimeDashboard'; // Real-time Dashboard
 import CryptoPage from './pages/CryptoPage';
 import TradingPage from './pages/TradingPage';
+import TradingPageV2 from './pages/TradingPageV2';
+import TradingPageV3 from './pages/TradingPageV3';
+import TradingPageV4 from './pages/TradingPageV4';
 import UsersManagementPage from './pages/UsersManagementPage';
 import ProfilePage from './pages/ProfilePage';
 
@@ -30,6 +35,8 @@ function ProtectedRoute({ children, requireAdmin = false }: { children: React.Re
 
 function AppWithRouter() {
   return (
+    <PriceProvider>
+      <TradingProvider>
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
@@ -104,6 +111,39 @@ function AppWithRouter() {
         />
 
         <Route
+          path="/trading/v2"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <TradingPageV2 />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/trading/v3"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <TradingPageV3 />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/trading/v4"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <TradingPageV4 />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/portfolio"
           element={
             <ProtectedRoute>
@@ -158,6 +198,8 @@ function AppWithRouter() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+      </TradingProvider>
+    </PriceProvider>
   );
 }
 

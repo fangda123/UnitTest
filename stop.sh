@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script สำหรับหยุด Backend, FrontEndV2, และ FrontEnd
+# Script สำหรับหยุด Backend, FrontEndV2, และ FrontEnd ด้วย PM2
 
 # สีสำหรับ output
 RED='\033[0;31m'
@@ -21,39 +21,54 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-print_info "กำลังหยุด services..."
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
 
-# หยุด Backend
-if [ -f "BackEnd/.pid" ]; then
-    PID=$(cat BackEnd/.pid)
-    if ps -p $PID > /dev/null 2>&1; then
-        kill $PID 2>/dev/null
-        print_success "หยุด Backend (PID: $PID)"
+# ตรวจสอบว่า PM2 ติดตั้งแล้วหรือยัง
+if ! command -v pm2 &> /dev/null; then
+    print_warning "PM2 ไม่ได้ติดตั้ง - กำลังหยุด processes แบบเดิม..."
+    
+    # หยุด Backend
+    if [ -f "BackEnd/.pid" ]; then
+        PID=$(cat BackEnd/.pid)
+        if ps -p $PID > /dev/null 2>&1; then
+            kill $PID 2>/dev/null
+            print_success "หยุด Backend (PID: $PID)"
+        fi
+        rm -f BackEnd/.pid
     fi
-    rm -f BackEnd/.pid
+    
+    # หยุด FrontEndV2
+    if [ -f "FrontEndV2/.pid" ]; then
+        PID=$(cat FrontEndV2/.pid)
+        if ps -p $PID > /dev/null 2>&1; then
+            kill $PID 2>/dev/null
+            print_success "หยุด FrontEndV2 (PID: $PID)"
+        fi
+        rm -f FrontEndV2/.pid
+    fi
+    
+    # หยุด FrontEnd
+    if [ -f "FrontEnd/.pid" ]; then
+        PID=$(cat FrontEnd/.pid)
+        if ps -p $PID > /dev/null 2>&1; then
+            kill $PID 2>/dev/null
+            print_success "หยุด FrontEnd (PID: $PID)"
+        fi
+        rm -f FrontEnd/.pid
+    fi
+else
+    print_info "กำลังหยุด services ด้วย PM2..."
+    
+    # หยุด PM2 processes
+    pm2 stop ecosystem.config.js 2>/dev/null
+    pm2 delete ecosystem.config.js 2>/dev/null
+    
+    print_success "หยุด PM2 processes แล้ว"
 fi
 
-# หยุด FrontEndV2
-if [ -f "FrontEndV2/.pid" ]; then
-    PID=$(cat FrontEndV2/.pid)
-    if ps -p $PID > /dev/null 2>&1; then
-        kill $PID 2>/dev/null
-        print_success "หยุด FrontEndV2 (PID: $PID)"
-    fi
-    rm -f FrontEndV2/.pid
-fi
-
-# หยุด FrontEnd
-if [ -f "FrontEnd/.pid" ]; then
-    PID=$(cat FrontEnd/.pid)
-    if ps -p $PID > /dev/null 2>&1; then
-        kill $PID 2>/dev/null
-        print_success "หยุด FrontEnd (PID: $PID)"
-    fi
-    rm -f FrontEnd/.pid
-fi
-
-# หยุด processes ที่ใช้ ports
+# หยุด processes ที่ใช้ ports (backup - สำหรับกรณีที่ PM2 ไม่ทำงาน)
 print_info "กำลังตรวจสอบ ports..."
 
 if lsof -ti:1111 > /dev/null 2>&1; then
@@ -71,5 +86,9 @@ if lsof -ti:1113 > /dev/null 2>&1; then
     print_success "ปิด port 1113 (FrontEndV2)"
 fi
 
-print_success "หยุด services ทั้งหมดแล้ว"
+# ลบ PID files
+rm -f BackEnd/.pid
+rm -f FrontEndV2/.pid
+rm -f FrontEnd/.pid
 
+print_success "หยุด services ทั้งหมดแล้ว"

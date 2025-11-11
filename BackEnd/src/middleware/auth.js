@@ -101,5 +101,8 @@ const protectInternalAPI = (req, res, next) => {
   next();
 };
 
-module.exports = { protect, authorize, protectInternalAPI };
+// Alias for protect (for semantic clarity)
+const authenticate = protect;
+
+module.exports = { protect, authenticate, authorize, protectInternalAPI };
 
