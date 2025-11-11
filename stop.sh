@@ -61,11 +61,11 @@ if ! command -v pm2 &> /dev/null; then
 else
     print_info "กำลังหยุด services ด้วย PM2..."
     
-    # หยุด PM2 processes
-    pm2 stop ecosystem.config.js 2>/dev/null
-    pm2 delete ecosystem.config.js 2>/dev/null
+    # หยุด PM2 processes เฉพาะของโปรเจคนี้เท่านั้น (ไม่ลบ processes อื่นๆ)
+    pm2 stop backend frontendv2 frontend 2>/dev/null || true
+    pm2 delete backend frontendv2 frontend 2>/dev/null || true
     
-    print_success "หยุด PM2 processes แล้ว"
+    print_success "หยุด PM2 processes ของโปรเจคนี้แล้ว"
 fi
 
 # หยุด processes ที่ใช้ ports (backup - สำหรับกรณีที่ PM2 ไม่ทำงาน)

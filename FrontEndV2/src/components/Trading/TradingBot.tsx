@@ -393,22 +393,32 @@ const TradingBot: React.FC = () => {
           {/* Recent Trades */}
           {trades.length > 0 && (
             <div className="p-4 bg-dark-700/50 rounded-lg border border-primary-500/20">
-              <h4 className="text-sm font-semibold text-gray-300 mb-3">Recent Trades</h4>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
+              <h4 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-primary-400" />
+                Recent Trades
+              </h4>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
                 {trades.slice(0, 5).map((trade: any, index: number) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-2 bg-dark-800/50 rounded border border-dark-600/50"
+                    className="p-3 bg-dark-800/50 rounded-lg border border-dark-600/50 hover:border-primary-500/30 transition-all"
                   >
+                    {/* Trade Header */}
+                    <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        trade.type === 'buy' ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'
+                          trade.type === 'buy' ? 'bg-success/20 text-success border border-success/50' : 'bg-danger/20 text-danger border border-danger/50'
                       }`}>
                         {trade.type.toUpperCase()}
                       </span>
-                      <span className="text-xs text-gray-400">
+                        <span className="text-xs text-gray-300 font-semibold">
                         ${trade.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
+                        {trade.quantity && (
+                          <span className="text-xs text-gray-500">
+                            ({trade.quantity.toFixed(8)} BTC)
+                          </span>
+                        )}
                     </div>
                     {trade.profit !== undefined && trade.profit !== null && trade.type === 'sell' && (
                       <span className={`text-xs font-semibold ${
@@ -416,6 +426,53 @@ const TradingBot: React.FC = () => {
                       }`}>
                         {trade.profit >= 0 ? '+' : ''}${trade.profit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
+                      )}
+                    </div>
+                    
+                    {/* Trade Reasons */}
+                    {trade.signal && trade.signal.reasons && trade.signal.reasons.length > 0 ? (
+                      <div className="mt-2 pt-2 border-t border-dark-600/50">
+                        <p className="text-xs text-gray-500 mb-1.5 font-semibold">เหตุผลในการตัดสินใจ:</p>
+                        <div className="space-y-1">
+                          {trade.signal.reasons.map((reason: string, idx: number) => (
+                            <div key={idx} className="text-xs flex items-start gap-1.5">
+                              <span className="text-primary-400 mt-0.5 flex-shrink-0">•</span>
+                              <span className={`text-gray-300 ${
+                                reason.includes('✅') || reason.includes('BUY') || reason.includes('SELL') ? 'text-success' : 
+                                reason.includes('⚠️') || reason.includes('WARNING') ? 'text-warning' : 
+                                reason.includes('❌') || reason.includes('RISK') ? 'text-danger' : ''
+                              }`}>
+                                {reason}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        {trade.signal.confidence && (
+                          <div className="mt-2 pt-2 border-t border-dark-600/50">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-gray-500">Confidence:</span>
+                              <span className="text-warning-400 font-semibold">{trade.signal.confidence}%</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="mt-2 pt-2 border-t border-dark-600/50">
+                        <p className="text-xs text-gray-500 italic">ไม่มีเหตุผลในการตัดสินใจ</p>
+                      </div>
+                    )}
+                    
+                    {/* Trade Time */}
+                    {trade.createdAt && (
+                      <div className="mt-2 text-xs text-gray-500">
+                        {new Date(trade.createdAt).toLocaleString('th-TH', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
                     )}
                   </div>
                 ))}

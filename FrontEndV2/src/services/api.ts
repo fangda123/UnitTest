@@ -6,7 +6,23 @@
 import axios, { type AxiosInstance } from 'axios';
 
 // Base URL - เปลี่ยนตามสภาพแวดล้อม
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://172.105.118.30:1111';
+// ตรวจสอบว่า frontend อยู่บน HTTPS หรือไม่
+const isHTTPS = typeof window !== 'undefined' && window.location.protocol === 'https:';
+const defaultAPIUrl = 'http://172.105.118.30:1111';
+
+// ใช้ environment variable ถ้ามี (สามารถ override ได้)
+let BASE_URL = import.meta.env.VITE_API_URL || defaultAPIUrl;
+
+// ตรวจสอบ Mixed Content: ถ้า frontend อยู่บน HTTPS แต่ API ใช้ HTTP
+if (isHTTPS && BASE_URL.startsWith('http://')) {
+  console.warn('⚠️ Mixed Content Warning: Frontend is on HTTPS but API is using HTTP.');
+  console.warn('⚠️ Please set VITE_API_URL to use HTTPS or configure a proxy.');
+  console.warn('⚠️ Example: VITE_API_URL=https://api.yourdomain.com');
+  
+  // ถ้า backend รองรับ HTTPS ให้เปลี่ยนเป็น HTTPS
+  // หรือใช้ proxy ผ่าน frontend server
+  // สำหรับตอนนี้จะใช้ HTTP ต่อไป (อาจจะถูก block โดย browser)
+}
 
 // สร้าง axios instance
 const apiClient: AxiosInstance = axios.create({

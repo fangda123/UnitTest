@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # Script สำหรับรัน Backend, FrontEndV2, และ FrontEnd พร้อมกันด้วย PM2
@@ -72,21 +73,21 @@ check_pm2() {
 stop_services() {
     print_info "กำลังหยุด services ด้วย PM2..."
     
-    # หยุด PM2 processes
-    pm2 stop ecosystem.config.js 2>/dev/null
-    pm2 delete ecosystem.config.js 2>/dev/null
+    # หยุด PM2 processes เฉพาะของโปรเจคนี้เท่านั้น (ไม่ลบ processes อื่นๆ)
+    pm2 stop backend frontendv2 frontend 2>/dev/null || true
+    pm2 delete backend frontendv2 frontend 2>/dev/null || true
     
-    # หยุด processes ที่ใช้ ports (backup)
-    lsof -ti:1111 | xargs kill -9 2>/dev/null
-    lsof -ti:1112 | xargs kill -9 2>/dev/null
-    lsof -ti:1113 | xargs kill -9 2>/dev/null
+    # หยุด processes ที่ใช้ ports (backup) - เฉพาะ ports ของโปรเจคนี้
+    lsof -ti:1111 | xargs kill -9 2>/dev/null || true
+    lsof -ti:1112 | xargs kill -9 2>/dev/null || true
+    lsof -ti:1113 | xargs kill -9 2>/dev/null || true
     
     # ลบ PID files
     rm -f BackEnd/.pid
     rm -f FrontEndV2/.pid
     rm -f FrontEnd/.pid
     
-    print_success "หยุด services ทั้งหมดแล้ว"
+    print_success "หยุด services ของโปรเจคนี้แล้ว"
 }
 
 # ฟังก์ชันสำหรับรัน services ทั้งหมดด้วย PM2

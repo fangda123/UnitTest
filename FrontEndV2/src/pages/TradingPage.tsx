@@ -24,6 +24,7 @@ import {
   Rocket
 } from 'lucide-react';
 import TradingViewChart from '../components/Charts/TradingViewChart';
+import LineChart from '../components/Charts/LineChart';
 import { cryptoAPI } from '../services/api';
 import { formatThaiBaht, formatPercentage, thbToUsd, usdToThb } from '../utils/currencyUtils';
 import type { CandlestickData, HistogramData, LineData } from 'lightweight-charts';

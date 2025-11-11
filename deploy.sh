@@ -377,18 +377,20 @@ echo -e "\n${YELLOW}🔄 Restart services ด้วย PM2...${NC}"
 $SSH_BASE_CMD "$SERVER_USER@$SERVER_IP" "
     cd $SERVER_PATH
     
-    # Stop existing processes
-    pm2 stop all 2>/dev/null || true
-    pm2 delete all 2>/dev/null || true
+    # Stop และ delete เฉพาะ processes ของโปรเจคนี้เท่านั้น (ไม่ลบ processes อื่นๆ)
+    echo '🛑 หยุด processes ของโปรเจคนี้...'
+    pm2 stop backend frontendv2 frontend 2>/dev/null || true
+    pm2 delete backend frontendv2 frontend 2>/dev/null || true
     
     # Start services ด้วย ecosystem.config.js
+    echo '🚀 เริ่มต้น services...'
     pm2 start ecosystem.config.js
     
     # Save PM2 process list
     pm2 save
     
-    # Setup PM2 startup script
-    pm2 startup
+    # Setup PM2 startup script (ถ้ายังไม่ได้ setup)
+    pm2 startup 2>/dev/null || true
 "
 
 echo -e "\n${GREEN}✅ Deploy สำเร็จ!${NC}"

@@ -52,29 +52,43 @@ export function useWebSocket(options: UseWebSocketOptions) {
    * เชื่อมต่อ WebSocket
    */
   const connect = useCallback(() => {
+    // ป้องกันการเชื่อมต่อซ้ำ - ถ้ามีการเชื่อมต่ออยู่แล้วให้ปิดก่อน
+    if (ws.current) {
+      if (ws.current.readyState === WebSocket.CONNECTING || ws.current.readyState === WebSocket.OPEN) {
+        ws.current.close();
+      }
+      ws.current = null;
+    }
+
     try {
-      console.log('🔌 กำลังเชื่อมต่อ WebSocket:', url);
+      if (mountedRef.current) {
+        console.log('🔌 กำลังเชื่อมต่อ WebSocket:', url);
+      }
       
       ws.current = new WebSocket(url);
 
       ws.current.onopen = () => {
-        console.log('✅ เชื่อมต่อ WebSocket สำเร็จ');
-        setIsConnected(true);
+        if (mountedRef.current) {
+          console.log('✅ เชื่อมต่อ WebSocket สำเร็จ');
+          setIsConnected(true);
+        }
         
         // ส่ง token เพื่อ authenticate
-        if (token && ws.current) {
+        if (token && ws.current && mountedRef.current) {
           ws.current.send(JSON.stringify({
             type: 'auth',
             token: token,
           }));
         }
 
-        if (onConnected) {
+        if (onConnected && mountedRef.current) {
           onConnected();
         }
       };
 
       ws.current.onmessage = (event) => {
+        if (!mountedRef.current) return;
+        
         try {
           const rawData = event.data;
           const message: WebSocketMessage = JSON.parse(rawData);
@@ -90,23 +104,33 @@ export function useWebSocket(options: UseWebSocketOptions) {
             onMessage(message);
           }
         } catch (error) {
-          console.error('❌ Error parsing WebSocket message:', error, 'Raw data:', event.data);
+          if (mountedRef.current) {
+            console.error('❌ Error parsing WebSocket message:', error, 'Raw data:', event.data);
+          }
         }
       };
 
       ws.current.onerror = (error) => {
-        console.error('❌ WebSocket Error:', error);
-        if (onError) {
-          onError(error);
+        // ไม่ log error ถ้า component ถูก unmount แล้ว (React Strict Mode)
+        if (mountedRef.current) {
+          // แค่ log เมื่อ component ยัง mounted อยู่
+          if (ws.current?.readyState !== WebSocket.CLOSED) {
+            console.error('❌ WebSocket Error:', error);
+          }
+          if (onError) {
+            onError(error);
+          }
         }
       };
 
       ws.current.onclose = () => {
-        console.log('🔌 WebSocket ถูกตัดการเชื่อมต่อ');
-        setIsConnected(false);
+        if (mountedRef.current) {
+          console.log('🔌 WebSocket ถูกตัดการเชื่อมต่อ');
+          setIsConnected(false);
 
-        if (onDisconnected) {
-          onDisconnected();
+          if (onDisconnected) {
+            onDisconnected();
+          }
         }
 
         // Auto reconnect (เฉพาะเมื่อ component ยัง mounted)
@@ -120,7 +144,9 @@ export function useWebSocket(options: UseWebSocketOptions) {
         }
       };
     } catch (error) {
-      console.error('❌ Error creating WebSocket:', error);
+      if (mountedRef.current) {
+        console.error('❌ Error creating WebSocket:', error);
+      }
     }
   }, [url, token, onMessage, onConnected, onDisconnected, onError, autoReconnect, reconnectInterval]);
 
@@ -171,9 +197,23 @@ export function useWebSocket(options: UseWebSocketOptions) {
     connect();
 
     return () => {
-      console.log('🧹 Cleanup WebSocket connection');
       mountedRef.current = false;
-      disconnect();
+      
+      if (ws.current) {
+        // ตรวจสอบว่า WebSocket ยังไม่ถูกปิดก่อน
+        if (ws.current.readyState === WebSocket.CONNECTING || ws.current.readyState === WebSocket.OPEN) {
+          ws.current.close();
+        }
+        ws.current = null;
+      }
+      
+      // Clear reconnect timeout
+      if (reconnectTimeoutRef.current !== undefined) {
+        window.clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = undefined;
+      }
+      
+      setIsConnected(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]); // ตรวจสอบ enabled เพื่อเปิด/ปิด WebSocket
@@ -214,48 +254,48 @@ export function useBinanceWebSocket(symbol: string = 'btcusdt') {
     console.log('🔌 เชื่อมต่อ Binance WebSocket:', symbol);
 
     try {
-      ws.current = new WebSocket(wsUrl);
+    ws.current = new WebSocket(wsUrl);
 
-      ws.current.onopen = () => {
+    ws.current.onopen = () => {
         if (mountedRef.current) {
-          console.log('✅ เชื่อมต่อ Binance WebSocket สำเร็จ');
+      console.log('✅ เชื่อมต่อ Binance WebSocket สำเร็จ');
         }
-      };
+    };
 
-      ws.current.onmessage = (event) => {
+    ws.current.onmessage = (event) => {
         if (!mountedRef.current) return;
         
-        try {
-          const data = JSON.parse(event.data);
-          
-          // อัพเดทข้อมูล
-          setPrice(parseFloat(data.c)); // Current price
-          setPriceChange(parseFloat(data.P)); // Price change percent
-          setVolume(parseFloat(data.v)); // Volume
-          
+      try {
+        const data = JSON.parse(event.data);
+        
+        // อัพเดทข้อมูล
+        setPrice(parseFloat(data.c)); // Current price
+        setPriceChange(parseFloat(data.P)); // Price change percent
+        setVolume(parseFloat(data.v)); // Volume
+        
           if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_WS === 'true') {
-            console.log(`💰 ${symbol.toUpperCase()} Price: $${parseFloat(data.c).toLocaleString()}`);
+        console.log(`💰 ${symbol.toUpperCase()} Price: $${parseFloat(data.c).toLocaleString()}`);
           }
-        } catch (error) {
-          console.error('❌ Error parsing Binance data:', error);
-        }
-      };
+      } catch (error) {
+        console.error('❌ Error parsing Binance data:', error);
+      }
+    };
 
-      ws.current.onerror = (error) => {
+    ws.current.onerror = (error) => {
         // ไม่ log error ถ้า component ถูก unmount แล้ว (React Strict Mode)
         if (mountedRef.current) {
           // แค่ log เมื่อ component ยัง mounted อยู่
           if (ws.current?.readyState !== WebSocket.CLOSED) {
-            console.error('❌ Binance WebSocket Error:', error);
+      console.error('❌ Binance WebSocket Error:', error);
           }
         }
-      };
+    };
 
-      ws.current.onclose = () => {
+    ws.current.onclose = () => {
         if (mountedRef.current) {
-          console.log('🔌 Binance WebSocket ถูกตัดการเชื่อมต่อ');
+      console.log('🔌 Binance WebSocket ถูกตัดการเชื่อมต่อ');
         }
-      };
+    };
     } catch (error) {
       console.error('❌ Error creating Binance WebSocket:', error);
     }
@@ -267,7 +307,7 @@ export function useBinanceWebSocket(symbol: string = 'btcusdt') {
       if (ws.current) {
         // ตรวจสอบว่า WebSocket ยังไม่ถูกปิดก่อน
         if (ws.current.readyState === WebSocket.CONNECTING || ws.current.readyState === WebSocket.OPEN) {
-          ws.current.close();
+        ws.current.close();
         }
         ws.current = null;
       }
