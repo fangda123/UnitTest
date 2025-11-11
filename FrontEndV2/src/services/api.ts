@@ -6,7 +6,7 @@
 import axios, { type AxiosInstance } from 'axios';
 
 // Base URL - เปลี่ยนตามสภาพแวดล้อม
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:1111';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://172.105.118.30:1111';
 
 // สร้าง axios instance
 const apiClient: AxiosInstance = axios.create({

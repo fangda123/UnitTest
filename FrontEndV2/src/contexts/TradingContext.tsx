@@ -3,7 +3,7 @@ import { tradingAPI, cryptoAPI, isAuthenticated } from '../services/api';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { usePrice } from './PriceContext';
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:1111/ws';
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://172.105.118.30:1111/ws';
 
 interface Simulation {
   _id: string;
@@ -116,23 +116,23 @@ export const TradingProvider: React.FC<TradingProviderProps> = ({ children }) =>
         setPriceHistory((prevHistory) => {
           if (history.length === 0) return prevHistory;
           
-          // สร้าง map ของ timestamp เพื่อป้องกันข้อมูลซ้ำ
-          const historyMap = new Map();
+            // สร้าง map ของ timestamp เพื่อป้องกันข้อมูลซ้ำ
+            const historyMap = new Map();
           
           // เพิ่มข้อมูลเดิมก่อน (ข้อมูลที่มีอยู่แล้ว)
-          prevHistory.forEach((item: any) => {
+            prevHistory.forEach((item: any) => {
             const timestamp = item.timestamp 
               ? (typeof item.timestamp === 'number' ? item.timestamp : parseInt(item.timestamp))
               : (typeof item === 'object' && item.date) 
                 ? new Date(item.date).getTime()
                 : null;
-            if (timestamp) {
-              historyMap.set(timestamp, item);
-            }
-          });
+              if (timestamp) {
+                historyMap.set(timestamp, item);
+              }
+            });
           
           // เพิ่มข้อมูลใหม่ (ข้อมูลล่าสุดจาก backend) - สะสมเข้าไป
-          history.forEach((item: any) => {
+            history.forEach((item: any) => {
             const timestamp = item.timestamp 
               ? (typeof item.timestamp === 'number' ? item.timestamp : parseInt(item.timestamp))
               : (typeof item === 'object' && item.date) 
@@ -140,11 +140,11 @@ export const TradingProvider: React.FC<TradingProviderProps> = ({ children }) =>
                 : Date.now() + Math.random(); // ถ้าไม่มี timestamp ให้ใช้ timestamp ปัจจุบัน
             
             // เพิ่มข้อมูลใหม่เข้าไป (จะทับข้อมูลเดิมถ้ามี timestamp เดียวกัน)
-            historyMap.set(timestamp, item);
-          });
+                historyMap.set(timestamp, item);
+            });
           
-          // แปลงกลับเป็น array และเรียงตาม timestamp
-          const merged = Array.from(historyMap.values()).sort((a: any, b: any) => {
+            // แปลงกลับเป็น array และเรียงตาม timestamp
+            const merged = Array.from(historyMap.values()).sort((a: any, b: any) => {
             const timeA = a.timestamp 
               ? (typeof a.timestamp === 'number' ? a.timestamp : parseInt(a.timestamp))
               : (typeof a === 'object' && a.date) 
@@ -155,8 +155,8 @@ export const TradingProvider: React.FC<TradingProviderProps> = ({ children }) =>
               : (typeof b === 'object' && b.date) 
                 ? new Date(b.date).getTime()
                 : 0;
-            return timeA - timeB;
-          });
+              return timeA - timeB;
+            });
           
           // จำกัดจำนวนข้อมูลสูงสุดที่ 5000 จุด (เก็บแค่ข้อมูลล่าสุด)
           const limited = merged.length > 5000 ? merged.slice(-5000) : merged;

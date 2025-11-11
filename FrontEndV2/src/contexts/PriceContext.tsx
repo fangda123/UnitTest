@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useWebSocket } from '../hooks/useWebSocket';
 import { isAuthenticated } from '../services/api';
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:1111/ws';
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://172.105.118.30:1111/ws';
 
 interface CryptoPrice {
   symbol: string;

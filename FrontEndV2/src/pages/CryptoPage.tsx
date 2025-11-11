@@ -5,7 +5,7 @@ import { RefreshCw, TrendingUp, TrendingDown, Search, Zap } from 'lucide-react';
 import LineChart from '../components/Charts/LineChart';
 import RealtimePriceCard from '../components/Crypto/RealtimePriceCard';
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:1111/ws';
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://172.105.118.30:1111/ws';
 
 /**
  * หน้า Crypto Prices

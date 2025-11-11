@@ -124,7 +124,7 @@ function TradingPageV3() {
 
   // WebSocket connection for real-time data (with error handling)
   const { isConnected, lastMessage } = useWebSocket({
-    url: import.meta.env.VITE_WS_URL || 'ws://localhost:1111/ws',
+    url: import.meta.env.VITE_WS_URL || 'ws://172.105.118.30:1111/ws',
     onMessage: (data: any) => {
       if (data.type === 'price' && data.symbol === selectedSymbol) {
         setCurrentPrice(data.price);
@@ -188,7 +188,7 @@ function TradingPageV3() {
         // Fetch ML profit prediction
         try {
           const predictionRes = await fetch(
-            `${import.meta.env.VITE_API_URL || 'http://localhost:1111'}/api/trading-v3/predict-profit?symbol=${selectedSymbol}&investment=${initialInvestmentUSD}&timeframe=${selectedTimeframe}`,
+            `${import.meta.env.VITE_API_URL || 'http://172.105.118.30:1111'}/api/trading-v3/predict-profit?symbol=${selectedSymbol}&investment=${initialInvestmentUSD}&timeframe=${selectedTimeframe}`,
             {
               headers: {
                 'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`,

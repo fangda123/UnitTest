@@ -551,8 +551,16 @@ const updateSimulation = async (req, res, next) => {
     // ถ้ามี prediction opportunity > 70% → ใช้ threshold ที่ลดลงแล้ว
     const requiredConfidence = signal.signal === 'sell' ? minConfidenceForSell : minConfidenceForBuy;
     
-    // ถ้ามี prediction opportunity > 70% → ข้าม cooldown เพื่อซื้อ/ขายทันที
-    const canTrade = signal.confidence >= requiredConfidence && (!isInCooldown || shouldTradeBasedOnPrediction);
+    // 🚀 ซื้อ/ขายทันทีเมื่อ confidence > 70% - ข้าม cooldown และการตรวจสอบอื่นๆ
+    const isHighConfidenceTrade = (signal.signal === 'buy' && signal.confidence > 70) || 
+                                   (signal.signal === 'sell' && signal.confidence > 70);
+    
+    // ถ้ามี prediction opportunity > 70% หรือ confidence > 70% → ข้าม cooldown เพื่อซื้อ/ขายทันที
+    const canTrade = signal.confidence >= requiredConfidence && (!isInCooldown || shouldTradeBasedOnPrediction || isHighConfidenceTrade);
+    
+    if (isHighConfidenceTrade) {
+      logger.info(`[Trading] 🚀 HIGH CONFIDENCE TRADE: ${signal.signal.toUpperCase()} (${signal.confidence}% confidence) - ซื้อ/ขายทันทีโดยข้าม cooldown`);
+    }
     
     if (canTrade) {
       if (signal.signal === 'buy' && simulation.currentBalance > 0) {
@@ -563,11 +571,12 @@ const updateSimulation = async (req, res, next) => {
         const holdingsValue = simulation.holdings * price;
         const holdingsPercentage = (holdingsValue / accountValue) * 100;
         
-        if (holdingsPercentage > 70 && !shouldTradeBasedOnPrediction) {
+        // 🚀 ถ้า confidence > 70% → ข้ามการตรวจสอบ holdings percentage เพื่อซื้อทันที
+        if (holdingsPercentage > 70 && !shouldTradeBasedOnPrediction && !isHighConfidenceTrade) {
           logger.info(`[Trading] ⚠️ ไม่ซื้อเพิ่ม - มี holdings ${holdingsPercentage.toFixed(2)}% ของมูลค่ารวม (มากกว่า 70%) - รอขายเพื่อเพิ่ม Current Balance`);
         } else {
-          if (shouldTradeBasedOnPrediction && holdingsPercentage > 70) {
-            logger.info(`[Trading] 🚀 Prediction opportunity สูง - ข้ามการตรวจสอบ holdings percentage เพื่อซื้อทันที`);
+          if ((shouldTradeBasedOnPrediction || isHighConfidenceTrade) && holdingsPercentage > 70) {
+            logger.info(`[Trading] 🚀 ${isHighConfidenceTrade ? 'HIGH CONFIDENCE' : 'Prediction opportunity'} สูง - ข้ามการตรวจสอบ holdings percentage เพื่อซื้อทันที`);
           }
           // ซื้อ - คำนวณจำนวนเงินที่จะซื้อ (Advanced Position Sizing ตาม Risk Management)
           // เป้าหมาย: เพิ่ม Total Value → ซื้อเมื่อมีโอกาสที่ Total Value จะเพิ่มขึ้น
@@ -588,10 +597,11 @@ const updateSimulation = async (req, res, next) => {
             buyAmount = buyAmount * confidenceMultiplier;
           }
           
-          // ถ้ามี prediction opportunity สูง → เพิ่ม position size เพื่อเพิ่ม Total Value
-          if (shouldTradeBasedOnPrediction) {
-            buyAmount = buyAmount * 1.5; // เพิ่ม 50% เมื่อมี prediction opportunity สูง
-            logger.info(`[Trading] 🚀 เพิ่ม position size 50% เนื่องจาก prediction opportunity สูง - เพื่อเพิ่ม Total Value`);
+          // ถ้ามี prediction opportunity สูง หรือ confidence > 70% → เพิ่ม position size เพื่อเพิ่ม Total Value
+          if (shouldTradeBasedOnPrediction || isHighConfidenceTrade) {
+            const multiplier = isHighConfidenceTrade ? 2.0 : 1.5; // confidence > 70% → เพิ่ม 100%, prediction opportunity → เพิ่ม 50%
+            buyAmount = buyAmount * multiplier;
+            logger.info(`[Trading] 🚀 เพิ่ม position size ${((multiplier - 1) * 100).toFixed(0)}% เนื่องจาก ${isHighConfidenceTrade ? 'HIGH CONFIDENCE' : 'prediction opportunity'} สูง - เพื่อเพิ่ม Total Value`);
           }
         
         // ปรับตาม market regime (Dynamic Risk Management)
@@ -756,8 +766,12 @@ const updateSimulation = async (req, res, next) => {
           sellReason = shouldSell 
             ? `⚠️ Stop Loss: ราคาลง ${priceDropFromAvg.toFixed(2)}% จากราคาซื้อเฉลี่ย - ขายเพื่อลดความเสี่ยง (ขาดทุน: ${profitPercentage.toFixed(2)}%)`
             : `ขาดทุนมากเกินไป (${profitPercentage.toFixed(2)}% < -2%) - ไม่ขายเพื่อรอโอกาสดีขึ้น`;
+        } else if (signalConfidence > 70) {
+          // 🚀 Signal confidence > 70% → ขายทันทีโดยไม่ต้องตรวจสอบกำไร/ขาดทุน
+          shouldSell = true;
+          sellReason = `🚀 HIGH CONFIDENCE SELL: Signal confidence สูงมาก (${signalConfidence}%) - ขายทันที (กำไร/ขาดทุน: ${profitPercentage.toFixed(2)}%)`;
         } else if (signalConfidence >= 70 && profitPercentage >= -1.0) {
-          // Signal confidence สูงมาก → ขายได้แม้ขาดทุนเล็กน้อย (ไม่เกิน -1%)
+          // Signal confidence = 70% → ขายได้แม้ขาดทุนเล็กน้อย (ไม่เกิน -1%)
           shouldSell = true;
           sellReason = `Signal confidence สูงมาก (${signalConfidence}%) - ขายแม้ขาดทุนเล็กน้อย (${profitPercentage.toFixed(2)}%) เพื่อรอโอกาสดีขึ้น`;
         } else {

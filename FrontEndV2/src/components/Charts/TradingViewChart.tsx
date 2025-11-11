@@ -96,20 +96,20 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
     // For lightweight-charts v5+, use addSeries with CandlestickSeries class
     try {
       const candlestickSeries = chart.addSeries(CandlestickSeries, {
-        upColor: '#10b981',
-        downColor: '#ef4444',
-        borderUpColor: '#10b981',
-        borderDownColor: '#ef4444',
-        wickUpColor: '#10b981',
-        wickDownColor: '#ef4444',
-      });
+      upColor: '#10b981',
+      downColor: '#ef4444',
+      borderUpColor: '#10b981',
+      borderDownColor: '#ef4444',
+      wickUpColor: '#10b981',
+      wickDownColor: '#ef4444',
+    });
 
       if (candlestickSeries) {
-        candlestickSeriesRef.current = candlestickSeries;
+    candlestickSeriesRef.current = candlestickSeries;
 
-        // ตั้งค่าข้อมูล
-        if (data && data.length > 0) {
-          candlestickSeries.setData(data);
+    // ตั้งค่าข้อมูล
+    if (data && data.length > 0) {
+      candlestickSeries.setData(data);
         }
       }
     } catch (error: any) {
@@ -117,7 +117,12 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
     }
 
     // เพิ่ม prediction line series (เส้นการคำนวณผลล่วงหน้า) - สร้างแยกต่างหาก
-    if (predictionData && predictionData.length > 0 && chartRef.current) {
+    // กรองข้อมูล prediction ที่มี value ที่ถูกต้อง
+    const validPredictionData = predictionData?.filter((p: LineData) => 
+      p && typeof p.value === 'number' && !isNaN(p.value) && p.value > 0
+    ) || [];
+    
+    if (validPredictionData.length > 0 && chartRef.current) {
       try {
         // ลบ prediction series เดิมถ้ามี
         if (predictionSeriesRef.current) {
@@ -137,7 +142,7 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
         });
         
         predictionSeriesRef.current = predictionSeries;
-        predictionSeries.setData(predictionData);
+        predictionSeries.setData(validPredictionData);
       } catch (error: any) {
         console.error('Error creating prediction series:', error);
       }
@@ -249,24 +254,35 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
   useEffect(() => {
     if (!chartRef.current) return;
 
-    if (predictionData && predictionData.length > 0) {
+    // กรองข้อมูล prediction ที่มี value ที่ถูกต้อง
+    const validPredictionData = predictionData?.filter((p: LineData) => 
+      p && typeof p.value === 'number' && !isNaN(p.value) && p.value > 0
+    ) || [];
+
+    if (validPredictionData.length > 0) {
       if (predictionSeriesRef.current) {
         // อัพเดทข้อมูลที่มีอยู่แล้ว
-        predictionSeriesRef.current.setData(predictionData);
+        try {
+          predictionSeriesRef.current.setData(validPredictionData);
+        } catch (error: any) {
+          console.error('Error updating prediction series:', error);
+        }
       } else {
         // สร้างใหม่ถ้ายังไม่มี
         try {
           const predictionSeries = chartRef.current.addSeries(LineSeries, {
             color: '#f59e0b',
-            lineWidth: 2,
+            lineWidth: 1,
             lineStyle: 1, // Dashed line
             title: 'การคำนวณผลล่วงหน้า',
             priceLineVisible: false,
             lastValueVisible: true,
+            pointMarkersVisible: true, // แสดงจุด
+            pointMarkersRadius: 6, // ขนาดจุด
           });
           
           predictionSeriesRef.current = predictionSeries;
-          predictionSeries.setData(predictionData);
+          predictionSeries.setData(validPredictionData);
         } catch (error: any) {
           console.error('Error creating prediction series:', error);
         }

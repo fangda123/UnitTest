@@ -12,7 +12,6 @@ const TradingInterface: React.FC = () => {
   const symbol = 'BTCUSDT';
   const [candlestickData, setCandlestickData] = useState<CandlestickData[]>([]);
   const [volumeData, setVolumeData] = useState<HistogramData[]>([]);
-  const [currentPrice, setCurrentPrice] = useState<number>(0);
   const [selectedTimeframe, setSelectedTimeframe] = useState<string>('1w');
   const [loading, setLoading] = useState(true);
   
@@ -52,7 +51,7 @@ const TradingInterface: React.FC = () => {
           low: parseFloat(kline.low || kline[3] || 0),
           close: parseFloat(kline.close || kline[4] || 0),
         };
-      }).filter(c => c.open > 0 && c.high > 0 && c.low > 0 && c.close > 0);
+      }).filter((c: CandlestickData) => c.open > 0 && c.high > 0 && c.low > 0 && c.close > 0);
 
       // Convert to volume format
       const volumes: HistogramData[] = klines.map((kline: any) => {
@@ -66,16 +65,10 @@ const TradingInterface: React.FC = () => {
           value: parseFloat(kline.volume || kline[5] || 0),
           color: isUp ? '#10b981' : '#ef4444',
         };
-      }).filter(v => v.value > 0);
+      }).filter((v: HistogramData) => v.value > 0);
 
       setCandlestickData(candlesticks);
       setVolumeData(volumes);
-
-      // Set current price from latest candle
-      if (candlesticks.length > 0) {
-        setCurrentPrice(candlesticks[candlesticks.length - 1].close);
-      }
-
       setLoading(false);
     } catch (error) {
       console.error('Error fetching klines:', error);
@@ -114,24 +107,33 @@ const TradingInterface: React.FC = () => {
       lastTime = candlestickData[candlestickData.length - 1].time as number;
     }
     
-    return predictions.map((pred: any, index: number) => {
-      // ใช้ timestamp จาก prediction ถ้ามี ไม่งั้นคำนวณจาก lastTime
-      let timestamp = lastTime;
-      
-      if (pred.timestamp) {
-        timestamp = (typeof pred.timestamp === 'number' ? pred.timestamp : parseInt(pred.timestamp)) / 1000;
-      } else if (pred.date) {
-        timestamp = new Date(pred.date).getTime() / 1000;
-      } else {
-        // คำนวณ timestamp ต่อจาก lastTime (5 นาทีต่อจุด)
-        timestamp = lastTime + (index + 1) * 300;
-      }
-      
-      return {
-        time: timestamp as any,
-        value: pred.price || pred.predictedPrice || 0,
-      };
-    }).filter((p: LineData) => p.value > 0);
+    return predictions
+      .map((pred: any, index: number) => {
+        // ใช้ timestamp จาก prediction ถ้ามี ไม่งั้นคำนวณจาก lastTime
+        let timestamp = lastTime;
+        
+        if (pred.timestamp) {
+          timestamp = (typeof pred.timestamp === 'number' ? pred.timestamp : parseInt(pred.timestamp)) / 1000;
+        } else if (pred.date) {
+          timestamp = new Date(pred.date).getTime() / 1000;
+        } else {
+          // คำนวณ timestamp ต่อจาก lastTime (5 นาทีต่อจุด)
+          timestamp = lastTime + (index + 1) * 300;
+        }
+        
+        const value = pred.price || pred.predictedPrice || 0;
+        
+        // ตรวจสอบว่า value เป็นตัวเลขที่ถูกต้อง
+        if (typeof value !== 'number' || isNaN(value) || value <= 0) {
+          return null;
+        }
+        
+        return {
+          time: timestamp as any,
+          value: value,
+        };
+      })
+      .filter((p: LineData | null): p is LineData => p !== null && typeof p.value === 'number' && !isNaN(p.value) && p.value > 0);
   }, [predictions, priceHistory, candlestickData]);
 
   return (

@@ -195,47 +195,80 @@ export function useBinanceWebSocket(symbol: string = 'btcusdt') {
   const [priceChange, setPriceChange] = useState<number>(0);
   const [volume, setVolume] = useState<number>(0);
   const ws = useRef<WebSocket | null>(null);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
+    
     // Binance WebSocket URL
     const wsUrl = `wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@ticker`;
 
+    // ป้องกันการเชื่อมต่อซ้ำ - ถ้ามีการเชื่อมต่ออยู่แล้วให้ปิดก่อน
+    if (ws.current) {
+      if (ws.current.readyState === WebSocket.CONNECTING || ws.current.readyState === WebSocket.OPEN) {
+        ws.current.close();
+      }
+      ws.current = null;
+    }
+
     console.log('🔌 เชื่อมต่อ Binance WebSocket:', symbol);
 
-    ws.current = new WebSocket(wsUrl);
+    try {
+      ws.current = new WebSocket(wsUrl);
 
-    ws.current.onopen = () => {
-      console.log('✅ เชื่อมต่อ Binance WebSocket สำเร็จ');
-    };
+      ws.current.onopen = () => {
+        if (mountedRef.current) {
+          console.log('✅ เชื่อมต่อ Binance WebSocket สำเร็จ');
+        }
+      };
 
-    ws.current.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
+      ws.current.onmessage = (event) => {
+        if (!mountedRef.current) return;
         
-        // อัพเดทข้อมูล
-        setPrice(parseFloat(data.c)); // Current price
-        setPriceChange(parseFloat(data.P)); // Price change percent
-        setVolume(parseFloat(data.v)); // Volume
-        
-        console.log(`💰 ${symbol.toUpperCase()} Price: $${parseFloat(data.c).toLocaleString()}`);
-      } catch (error) {
-        console.error('❌ Error parsing Binance data:', error);
-      }
-    };
+        try {
+          const data = JSON.parse(event.data);
+          
+          // อัพเดทข้อมูล
+          setPrice(parseFloat(data.c)); // Current price
+          setPriceChange(parseFloat(data.P)); // Price change percent
+          setVolume(parseFloat(data.v)); // Volume
+          
+          if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_WS === 'true') {
+            console.log(`💰 ${symbol.toUpperCase()} Price: $${parseFloat(data.c).toLocaleString()}`);
+          }
+        } catch (error) {
+          console.error('❌ Error parsing Binance data:', error);
+        }
+      };
 
-    ws.current.onerror = (error) => {
-      console.error('❌ Binance WebSocket Error:', error);
-    };
+      ws.current.onerror = (error) => {
+        // ไม่ log error ถ้า component ถูก unmount แล้ว (React Strict Mode)
+        if (mountedRef.current) {
+          // แค่ log เมื่อ component ยัง mounted อยู่
+          if (ws.current?.readyState !== WebSocket.CLOSED) {
+            console.error('❌ Binance WebSocket Error:', error);
+          }
+        }
+      };
 
-    ws.current.onclose = () => {
-      console.log('🔌 Binance WebSocket ถูกตัดการเชื่อมต่อ');
-    };
+      ws.current.onclose = () => {
+        if (mountedRef.current) {
+          console.log('🔌 Binance WebSocket ถูกตัดการเชื่อมต่อ');
+        }
+      };
+    } catch (error) {
+      console.error('❌ Error creating Binance WebSocket:', error);
+    }
 
     // Cleanup
     return () => {
-      console.log(`🧹 Cleanup Binance WebSocket: ${symbol}`);
+      mountedRef.current = false;
+      
       if (ws.current) {
-        ws.current.close();
+        // ตรวจสอบว่า WebSocket ยังไม่ถูกปิดก่อน
+        if (ws.current.readyState === WebSocket.CONNECTING || ws.current.readyState === WebSocket.OPEN) {
+          ws.current.close();
+        }
         ws.current = null;
       }
     };

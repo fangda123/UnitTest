@@ -146,7 +146,7 @@ function TradingPageV4() {
 
   // WebSocket connection for real-time data
   const { isConnected, lastMessage } = useWebSocket({
-    url: import.meta.env.VITE_WS_URL || 'ws://localhost:1111/ws',
+    url: import.meta.env.VITE_WS_URL || 'ws://172.105.118.30:1111/ws',
     onMessage: (data: any) => {
       if (data.type === 'price' && data.symbol === selectedSymbol) {
         setCurrentPrice(data.price);

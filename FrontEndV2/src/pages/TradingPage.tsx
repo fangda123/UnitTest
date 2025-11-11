@@ -569,24 +569,33 @@ function TradingPage() {
       lastTime = candlestickData[candlestickData.length - 1].time as number;
     }
     
-    return predictions.map((pred: any, index: number) => {
-      // ใช้ timestamp จาก prediction ถ้ามี ไม่งั้นคำนวณจาก lastTime
-      let timestamp = lastTime;
-      
-      if (pred.timestamp) {
-        timestamp = (typeof pred.timestamp === 'number' ? pred.timestamp : parseInt(pred.timestamp)) / 1000;
-      } else if (pred.date) {
-        timestamp = new Date(pred.date).getTime() / 1000;
-      } else {
-        // คำนวณ timestamp ต่อจาก lastTime (5 นาทีต่อจุด)
-        timestamp = lastTime + (index + 1) * 300;
-      }
-      
-      return {
-        time: timestamp as any,
-        value: pred.price || pred.predictedPrice || 0,
-      };
-    }).filter((p: LineData) => p.value > 0);
+    return predictions
+      .map((pred: any, index: number) => {
+        // ใช้ timestamp จาก prediction ถ้ามี ไม่งั้นคำนวณจาก lastTime
+        let timestamp = lastTime;
+        
+        if (pred.timestamp) {
+          timestamp = (typeof pred.timestamp === 'number' ? pred.timestamp : parseInt(pred.timestamp)) / 1000;
+        } else if (pred.date) {
+          timestamp = new Date(pred.date).getTime() / 1000;
+        } else {
+          // คำนวณ timestamp ต่อจาก lastTime (5 นาทีต่อจุด)
+          timestamp = lastTime + (index + 1) * 300;
+        }
+        
+        const value = pred.price || pred.predictedPrice || 0;
+        
+        // ตรวจสอบว่า value เป็นตัวเลขที่ถูกต้อง
+        if (typeof value !== 'number' || isNaN(value) || value <= 0) {
+          return null;
+        }
+        
+        return {
+          time: timestamp as any,
+          value: value,
+        };
+      })
+      .filter((p: LineData | null): p is LineData => p !== null && typeof p.value === 'number' && !isNaN(p.value) && p.value > 0);
   }, [predictions, priceHistory, candlestickData]);
 
   // สร้าง chart data - แสดง Historical, Prediction, และ Actual (ถ้ามี) - สำหรับ LineChart เดิม (ยังใช้อยู่)
