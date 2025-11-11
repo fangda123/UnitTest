@@ -24,6 +24,7 @@ class WebSocketService {
       // รอรับ token เพื่อ authenticate
       ws.on('message', (message) => {
         try {
+            console.log(message)
           const data = JSON.parse(message);
 
           // ตรวจสอบ authentication

@@ -199,3 +199,4 @@ class TradingV5DataCollector {
 
 module.exports = TradingV5DataCollector;
 
+
