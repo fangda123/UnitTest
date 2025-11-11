@@ -191,6 +191,14 @@ export const cryptoAPI = {
   
   // สถิติ 7 วัน
   getStats7d: (symbol: string) => apiClient.get(`/api/crypto/stats/${symbol}?period=7d`),
+  
+  // ดึง Order Book (depth) จาก Binance
+  getOrderBook: (symbol: string, limit: number = 20) => 
+    apiClient.get(`/api/crypto/orderbook/${symbol}`, { params: { limit } }),
+  
+  // ดึง Recent Trades จาก Binance
+  getRecentTrades: (symbol: string, limit: number = 50) => 
+    apiClient.get(`/api/crypto/trades/${symbol}`, { params: { limit } }),
 };
 
 // ========================================

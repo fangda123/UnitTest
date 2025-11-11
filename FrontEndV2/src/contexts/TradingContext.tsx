@@ -112,41 +112,60 @@ export const TradingProvider: React.FC<TradingProviderProps> = ({ children }) =>
         setCurrentPrice(response.data.data.currentPrice || 0);
         setSignal(response.data.data.signal || null);
         
-        // Merge ข้อมูล history: ถ้ามีข้อมูลจาก klines (1 ปี) อยู่แล้ว ให้ merge แทนที่จะทับ
+        // Merge ข้อมูล history: สะสมข้อมูลแบบ real-time (ไม่ replace)
         setPriceHistory((prevHistory) => {
-          // ถ้ามีข้อมูลเดิมมากกว่า 100 จุด (น่าจะเป็นข้อมูล 1 ปี) ให้ merge
-          if (prevHistory.length > 100 && history.length > 0) {
-            // สร้าง map ของ timestamp เพื่อป้องกันข้อมูลซ้ำ
-            const historyMap = new Map();
-            // เพิ่มข้อมูลเดิมก่อน (ข้อมูล 1 ปี)
-            prevHistory.forEach((item: any) => {
-              const timestamp = item.timestamp || (typeof item === 'object' ? item.date?.getTime() : null);
-              if (timestamp) {
-                historyMap.set(timestamp, item);
-              }
-            });
-            // เพิ่มข้อมูลใหม่ (ข้อมูลล่าสุดจาก backend)
-            history.forEach((item: any) => {
-              const timestamp = item.timestamp || (typeof item === 'object' ? item.date?.getTime() : null) || (typeof item === 'number' ? null : Date.now());
-              if (timestamp) {
-                historyMap.set(timestamp, item);
-              } else {
-                // ถ้าไม่มี timestamp ให้เพิ่มท้าย
-                historyMap.set(Date.now() + Math.random(), item);
-              }
-            });
-            // แปลงกลับเป็น array และเรียงตาม timestamp
-            const merged = Array.from(historyMap.values()).sort((a: any, b: any) => {
-              const timeA = a.timestamp || (typeof a === 'object' ? a.date?.getTime() : 0) || 0;
-              const timeB = b.timestamp || (typeof b === 'object' ? b.date?.getTime() : 0) || 0;
-              return timeA - timeB;
-            });
-            console.log(`[TradingContext] 🔄 Merge ข้อมูล: เดิม=${prevHistory.length} จุด, ใหม่=${history.length} จุด, รวม=${merged.length} จุด`);
-            return merged;
-          } else {
-            // ถ้าไม่มีข้อมูลเดิมหรือข้อมูลเดิมน้อย ให้ใช้ข้อมูลใหม่
-            return history;
+          if (history.length === 0) return prevHistory;
+          
+          // สร้าง map ของ timestamp เพื่อป้องกันข้อมูลซ้ำ
+          const historyMap = new Map();
+          
+          // เพิ่มข้อมูลเดิมก่อน (ข้อมูลที่มีอยู่แล้ว)
+          prevHistory.forEach((item: any) => {
+            const timestamp = item.timestamp 
+              ? (typeof item.timestamp === 'number' ? item.timestamp : parseInt(item.timestamp))
+              : (typeof item === 'object' && item.date) 
+                ? new Date(item.date).getTime()
+                : null;
+            if (timestamp) {
+              historyMap.set(timestamp, item);
+            }
+          });
+          
+          // เพิ่มข้อมูลใหม่ (ข้อมูลล่าสุดจาก backend) - สะสมเข้าไป
+          history.forEach((item: any) => {
+            const timestamp = item.timestamp 
+              ? (typeof item.timestamp === 'number' ? item.timestamp : parseInt(item.timestamp))
+              : (typeof item === 'object' && item.date) 
+                ? new Date(item.date).getTime()
+                : Date.now() + Math.random(); // ถ้าไม่มี timestamp ให้ใช้ timestamp ปัจจุบัน
+            
+            // เพิ่มข้อมูลใหม่เข้าไป (จะทับข้อมูลเดิมถ้ามี timestamp เดียวกัน)
+            historyMap.set(timestamp, item);
+          });
+          
+          // แปลงกลับเป็น array และเรียงตาม timestamp
+          const merged = Array.from(historyMap.values()).sort((a: any, b: any) => {
+            const timeA = a.timestamp 
+              ? (typeof a.timestamp === 'number' ? a.timestamp : parseInt(a.timestamp))
+              : (typeof a === 'object' && a.date) 
+                ? new Date(a.date).getTime()
+                : 0;
+            const timeB = b.timestamp 
+              ? (typeof b.timestamp === 'number' ? b.timestamp : parseInt(b.timestamp))
+              : (typeof b === 'object' && b.date) 
+                ? new Date(b.date).getTime()
+                : 0;
+            return timeA - timeB;
+          });
+          
+          // จำกัดจำนวนข้อมูลสูงสุดที่ 5000 จุด (เก็บแค่ข้อมูลล่าสุด)
+          const limited = merged.length > 5000 ? merged.slice(-5000) : merged;
+          
+          if (prevHistory.length !== limited.length) {
+            console.log(`[TradingContext] 🔄 สะสมข้อมูล: เดิม=${prevHistory.length} จุด, ใหม่=${history.length} จุด, รวม=${limited.length} จุด`);
           }
+          
+          return limited;
         });
         
         setPredictions(predictions);
@@ -208,11 +227,51 @@ export const TradingProvider: React.FC<TradingProviderProps> = ({ children }) =>
         setCurrentPrice(response.data.data.currentPrice || currentPrice);
         setSignal(response.data.data.signal || signal);
         
-        // อัพเดท history และ predictions ถ้ามี
-        if (response.data.data.history) {
-          setPriceHistory(response.data.data.history);
+        // อัพเดท history และ predictions แบบสะสม (real-time)
+        if (response.data.data.history && Array.isArray(response.data.data.history)) {
+          setPriceHistory((prevHistory) => {
+            // Merge ข้อมูลใหม่เข้าไปในข้อมูลเดิม
+            const historyMap = new Map();
+            
+            // เพิ่มข้อมูลเดิม
+            prevHistory.forEach((item: any) => {
+              const timestamp = item.timestamp 
+                ? (typeof item.timestamp === 'number' ? item.timestamp : parseInt(item.timestamp))
+                : (typeof item === 'object' && item.date) 
+                  ? new Date(item.date).getTime()
+                  : null;
+              if (timestamp) {
+                historyMap.set(timestamp, item);
+              }
+            });
+            
+            // เพิ่มข้อมูลใหม่
+            response.data.data.history.forEach((item: any) => {
+              const timestamp = item.timestamp 
+                ? (typeof item.timestamp === 'number' ? item.timestamp : parseInt(item.timestamp))
+                : (typeof item === 'object' && item.date) 
+                  ? new Date(item.date).getTime()
+                  : Date.now() + Math.random();
+              historyMap.set(timestamp, item);
+            });
+            
+            // เรียงตาม timestamp และจำกัดที่ 5000 จุด
+            const merged = Array.from(historyMap.values()).sort((a: any, b: any) => {
+              const timeA = a.timestamp 
+                ? (typeof a.timestamp === 'number' ? a.timestamp : parseInt(a.timestamp))
+                : (typeof a === 'object' && a.date) ? new Date(a.date).getTime() : 0;
+              const timeB = b.timestamp 
+                ? (typeof b.timestamp === 'number' ? b.timestamp : parseInt(b.timestamp))
+                : (typeof b === 'object' && b.date) ? new Date(b.date).getTime() : 0;
+              return timeA - timeB;
+            });
+            
+            return merged.length > 5000 ? merged.slice(-5000) : merged;
+          });
         }
-        if (response.data.data.predictions) {
+        
+        // อัพเดท predictions (replace ใหม่ทุกครั้ง)
+        if (response.data.data.predictions && Array.isArray(response.data.data.predictions)) {
           setPredictions(response.data.data.predictions);
         }
         
@@ -260,17 +319,60 @@ export const TradingProvider: React.FC<TradingProviderProps> = ({ children }) =>
         
         if (klinesResponse.data && klinesResponse.data.data) {
           const historicalData = klinesResponse.data.data.map((kline: any) => ({
-            price: kline.price || kline.close,
-            timestamp: kline.timestamp || kline.openTime,
-            date: kline.date || new Date(kline.timestamp || kline.openTime),
-            high: kline.high,
-            low: kline.low,
-            open: kline.open,
-            volume: kline.volume,
-          }));
+            price: parseFloat(kline.price || kline.close || kline[4] || 0),
+            timestamp: kline.timestamp || kline.openTime || kline[0],
+            date: kline.date || new Date(kline.timestamp || kline.openTime || kline[0]),
+            high: parseFloat(kline.high || kline[2] || 0),
+            low: parseFloat(kline.low || kline[3] || 0),
+            open: parseFloat(kline.open || kline[1] || 0),
+            volume: parseFloat(kline.volume || kline[5] || 0),
+          })).filter((item: any) => item.price > 0);
           
           console.log(`[TradingContext] ✅ ดึงข้อมูลย้อนหลัง 1 ปีสำเร็จ: ${historicalData.length} จุด`);
-          setPriceHistory(historicalData);
+          
+          // Merge กับข้อมูลเดิม (ถ้ามี)
+          setPriceHistory((prevHistory) => {
+            if (prevHistory.length === 0) return historicalData;
+            
+            const historyMap = new Map();
+            
+            // เพิ่มข้อมูลเดิม
+            prevHistory.forEach((item: any) => {
+              const timestamp = item.timestamp 
+                ? (typeof item.timestamp === 'number' ? item.timestamp : parseInt(item.timestamp))
+                : (typeof item === 'object' && item.date) 
+                  ? new Date(item.date).getTime()
+                  : null;
+              if (timestamp) {
+                historyMap.set(timestamp, item);
+              }
+            });
+            
+            // เพิ่มข้อมูลใหม่
+            historicalData.forEach((item: any) => {
+              const timestamp = item.timestamp 
+                ? (typeof item.timestamp === 'number' ? item.timestamp : parseInt(item.timestamp))
+                : (typeof item === 'object' && item.date) 
+                  ? new Date(item.date).getTime()
+                  : null;
+              if (timestamp) {
+                historyMap.set(timestamp, item);
+              }
+            });
+            
+            // เรียงตาม timestamp
+            const merged = Array.from(historyMap.values()).sort((a: any, b: any) => {
+              const timeA = a.timestamp 
+                ? (typeof a.timestamp === 'number' ? a.timestamp : parseInt(a.timestamp))
+                : (typeof a === 'object' && a.date) ? new Date(a.date).getTime() : 0;
+              const timeB = b.timestamp 
+                ? (typeof b.timestamp === 'number' ? b.timestamp : parseInt(b.timestamp))
+                : (typeof b === 'object' && b.date) ? new Date(b.date).getTime() : 0;
+              return timeA - timeB;
+            });
+            
+            return merged;
+          });
         }
       } catch (error: any) {
         console.warn(`[TradingContext] ⚠️ ไม่สามารถดึงข้อมูลย้อนหลัง 1 ปีได้: ${error.message}`);

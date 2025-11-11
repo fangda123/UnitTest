@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTrading } from '../contexts/TradingContext';
 import { 
   TrendingUp, 
@@ -23,8 +23,10 @@ import {
   Sparkles,
   Rocket
 } from 'lucide-react';
-import LineChart from '../components/Charts/LineChart';
+import TradingViewChart from '../components/Charts/TradingViewChart';
+import { cryptoAPI } from '../services/api';
 import { formatThaiBaht, formatPercentage, thbToUsd, usdToThb } from '../utils/currencyUtils';
+import type { CandlestickData, HistogramData, LineData } from 'lightweight-charts';
 
 function TradingPage() {
   // ใช้ TradingContext แทน local state - ทำงานใน background
@@ -62,6 +64,12 @@ function TradingPage() {
   const [showProfitEffect, setShowProfitEffect] = useState(false);
   const [profitAmount, setProfitAmount] = useState<number>(0);
   const [lastTradeCount, setLastTradeCount] = useState<number>(0);
+  
+  // State สำหรับกราฟ TradingView
+  const [candlestickData, setCandlestickData] = useState<CandlestickData[]>([]);
+  const [volumeData, setVolumeData] = useState<HistogramData[]>([]);
+  const [chartLoading, setChartLoading] = useState(true);
+  const [selectedTimeframe, setSelectedTimeframe] = useState<string>('1w');
 
   // ใช้แค่ BTCUSDT เท่านั้น
   const selectedSymbol = 'BTCUSDT';
@@ -473,7 +481,115 @@ function TradingPage() {
     }
   }, [trades, lastTradeCount]);
 
-  // สร้าง chart data - แสดง Historical, Prediction, และ Actual (ถ้ามี)
+  // Map timeframe to Binance interval
+  const timeframeMap: Record<string, string> = {
+    '1s': '1m',
+    '15m': '15m',
+    '1H': '1h',
+    '4H': '4h',
+    '1D': '1d',
+    '1W': '1w',
+  };
+
+  // ดึงข้อมูล klines สำหรับกราฟ candlestick
+  const fetchKlines = async (interval: string) => {
+    try {
+      setChartLoading(true);
+      const binanceInterval = timeframeMap[interval] || '1w';
+      
+      const response = await cryptoAPI.getKlines(selectedSymbol, {
+        interval: binanceInterval,
+        limit: 500,
+      });
+
+      const klines = response.data?.data || response.data || [];
+
+      // Convert to candlestick format
+      const candlesticks: CandlestickData[] = klines.map((kline: any) => {
+        const timestamp = kline.openTime || kline.timestamp || kline.time || kline[0];
+        return {
+          time: (typeof timestamp === 'number' ? timestamp : parseInt(timestamp)) / 1000 as any,
+          open: parseFloat(kline.open || kline[1] || 0),
+          high: parseFloat(kline.high || kline[2] || 0),
+          low: parseFloat(kline.low || kline[3] || 0),
+          close: parseFloat(kline.close || kline[4] || 0),
+        };
+      }).filter(c => c.open > 0 && c.high > 0 && c.low > 0 && c.close > 0);
+
+      // Convert to volume format
+      const volumes: HistogramData[] = klines.map((kline: any) => {
+        const timestamp = kline.openTime || kline.timestamp || kline.time || kline[0];
+        const close = parseFloat(kline.close || kline[4] || 0);
+        const open = parseFloat(kline.open || kline[1] || 0);
+        const isUp = close >= open;
+        
+        return {
+          time: (typeof timestamp === 'number' ? timestamp : parseInt(timestamp)) / 1000 as any,
+          value: parseFloat(kline.volume || kline[5] || 0),
+          color: isUp ? '#10b981' : '#ef4444',
+        };
+      }).filter(v => v.value > 0);
+
+      setCandlestickData(candlesticks);
+      setVolumeData(volumes);
+      setChartLoading(false);
+    } catch (error) {
+      console.error('Error fetching klines:', error);
+      setChartLoading(false);
+    }
+  };
+
+  // ดึงข้อมูล klines เมื่อ simulation เริ่มต้น
+  useEffect(() => {
+    if (simulation) {
+      fetchKlines(selectedTimeframe);
+      const interval = setInterval(() => fetchKlines(selectedTimeframe), 30000);
+      return () => clearInterval(interval);
+    }
+  }, [simulation, selectedTimeframe]);
+
+  // แปลง predictions เป็น LineData สำหรับแสดงในกราฟ (จุดสีส้ม)
+  const predictionLineData: LineData[] = React.useMemo(() => {
+    if (!predictions || predictions.length === 0) return [];
+    
+    // หา timestamp ล่าสุดจาก priceHistory หรือ candlestick data
+    let lastTime = Date.now() / 1000;
+    
+    if (priceHistory && priceHistory.length > 0) {
+      const lastHistory = priceHistory[priceHistory.length - 1];
+      if (lastHistory) {
+        const historyTimestamp = lastHistory.timestamp 
+          ? (typeof lastHistory.timestamp === 'number' ? lastHistory.timestamp : parseInt(lastHistory.timestamp)) / 1000
+          : lastHistory.date 
+            ? new Date(lastHistory.date).getTime() / 1000
+            : Date.now() / 1000;
+        lastTime = historyTimestamp;
+      }
+    } else if (candlestickData.length > 0) {
+      lastTime = candlestickData[candlestickData.length - 1].time as number;
+    }
+    
+    return predictions.map((pred: any, index: number) => {
+      // ใช้ timestamp จาก prediction ถ้ามี ไม่งั้นคำนวณจาก lastTime
+      let timestamp = lastTime;
+      
+      if (pred.timestamp) {
+        timestamp = (typeof pred.timestamp === 'number' ? pred.timestamp : parseInt(pred.timestamp)) / 1000;
+      } else if (pred.date) {
+        timestamp = new Date(pred.date).getTime() / 1000;
+      } else {
+        // คำนวณ timestamp ต่อจาก lastTime (5 นาทีต่อจุด)
+        timestamp = lastTime + (index + 1) * 300;
+      }
+      
+      return {
+        time: timestamp as any,
+        value: pred.price || pred.predictedPrice || 0,
+      };
+    }).filter((p: LineData) => p.value > 0);
+  }, [predictions, priceHistory, candlestickData]);
+
+  // สร้าง chart data - แสดง Historical, Prediction, และ Actual (ถ้ามี) - สำหรับ LineChart เดิม (ยังใช้อยู่)
   const historicalData = priceHistory && priceHistory.length > 0 
     ? priceHistory.map((h: any) => (typeof h === 'object' ? h.price : h))
     : [];
@@ -747,7 +863,7 @@ function TradingPage() {
               <div className="text-6xl mb-4 animate-bounce">🎉</div>
               <h2 className="text-3xl font-bold text-white mb-2">ได้กำไรแล้ว!</h2>
               <p className="text-2xl font-semibold text-white">
-                +{formatThaiBaht(profitAmount)}
+                +${profitAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               <div className="mt-4 flex items-center justify-center gap-2">
                 <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
@@ -847,7 +963,7 @@ function TradingPage() {
               <p className="text-xs text-gray-400 mt-1">ระบบจะเก็บข้อมูลและคำนวณสัญญาณเฉพาะ BTCUSDT เพื่อลด delay</p>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-2">เงินลงทุนเริ่มต้น (บาทไทย)</label>
+              <label className="block text-sm text-gray-400 mb-2">เงินลงทุนเริ่มต้น (USD)</label>
               <input
                 type="number"
                 value={investment}
@@ -885,7 +1001,7 @@ function TradingPage() {
                       <p className="text-xs text-success-400 font-semibold">
                         ⚡ AGGRESSIVE MODE: ค่าที่แนะนำเพื่อให้ได้กำไรมากและเร็วที่สุด - ปรับตาม Market Regime, Volatility, และ Confidence
                         <br />
-                        <span className="text-primary-400">💰 เงินลงทุน: {Math.round(parseFloat(investment))} ฿</span>
+                        <span className="text-primary-400">💰 เงินลงทุน: ${Math.round(parseFloat(investment))}</span>
                         {signal && signal.confidence && (
                           <span className="ml-2 text-success">🎯 Confidence: {signal.confidence}%</span>
                         )}
@@ -1120,7 +1236,7 @@ function TradingPage() {
                   <Coins className="w-5 h-5 text-primary-400 animate-pulse" />
                 </div>
                 <p className="text-3xl font-bold text-gray-100 mb-1">
-                  {formatThaiBaht(currentPrice)}
+                  ${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 {priceChange !== 0 && (
                   <div className={`flex items-center gap-1 text-sm font-semibold ${priceChange >= 0 ? 'text-success' : 'text-danger'}`}>
@@ -1156,7 +1272,7 @@ function TradingPage() {
                   )}
                 </div>
                 <p className={`text-3xl font-bold mb-1 ${profit >= 0 ? 'text-success' : 'text-danger'}`}>
-                  {formatThaiBaht(profit)}
+                  ${profit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 <p className={`text-sm font-semibold ${profit >= 0 ? 'text-success' : 'text-danger'}`}>
                   {formatPercentage(profitPercentage)}
@@ -1204,7 +1320,7 @@ function TradingPage() {
                   <Wallet className="w-5 h-5 text-primary-400" />
                 </div>
                 <p className="text-2xl font-bold text-gray-100 mb-1">
-                  {formatThaiBaht(simulation.currentBalance)}
+                  ${simulation.currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-gray-500">
                   เหรียญที่ถือ: {simulation.holdings.toFixed(8)} BTC
@@ -1244,7 +1360,7 @@ function TradingPage() {
                 <Gauge className="w-5 h-5 text-warning-400" />
               </div>
               <p className={`text-3xl font-bold ${stats.avgProfit >= 0 ? 'text-success-400' : 'text-danger-400'}`}>
-                {formatThaiBaht(usdToThb(stats.avgProfit))}
+                ${stats.avgProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
 
@@ -1254,7 +1370,7 @@ function TradingPage() {
                 <Flame className="w-5 h-5 text-purple-400" />
               </div>
               <p className={`text-3xl font-bold ${stats.totalProfit >= 0 ? 'text-success-400' : 'text-danger-400'}`}>
-                {formatThaiBaht(usdToThb(stats.totalProfit))}
+                ${stats.totalProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
           </div>
@@ -1274,16 +1390,16 @@ function TradingPage() {
               <div>
                 <p className="text-xs text-gray-400 mb-1">มูลค่าปัจจุบัน (Holdings)</p>
                 <p className="text-lg font-bold text-gray-100">
-                  {formatThaiBaht(simulation.holdings * currentPrice)}
+                  ${(simulation.holdings * currentPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {simulation.holdings.toFixed(8)} BTC × {formatThaiBaht(currentPrice)}
+                  {simulation.holdings.toFixed(8)} BTC × ${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-gray-400 mb-1">มูลค่ารวม (Total Value)</p>
                 <p className="text-lg font-bold text-gray-100">
-                  {formatThaiBaht(simulation.currentBalance + (simulation.holdings * currentPrice))}
+                  ${(simulation.currentBalance + (simulation.holdings * currentPrice)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-gray-500">
                   Balance + Holdings
@@ -1292,7 +1408,7 @@ function TradingPage() {
               <div>
                 <p className="text-xs text-gray-400 mb-1">กำไร/ขาดทุน (Profit/Loss)</p>
                 <p className={`text-lg font-bold ${profit >= 0 ? 'text-success' : 'text-danger'}`}>
-                  {profit >= 0 ? '+' : ''}{formatThaiBaht(profit)}
+                  {profit >= 0 ? '+' : ''}${profit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 <p className={`text-xs ${profitPercentage >= 0 ? 'text-success' : 'text-danger'}`}>
                   {formatPercentage(profitPercentage)}
@@ -1301,7 +1417,7 @@ function TradingPage() {
               <div>
                 <p className="text-xs text-gray-400 mb-1">ราคาซื้อเฉลี่ย (Avg Buy Price)</p>
                 <p className="text-lg font-bold text-gray-100">
-                  {simulation.averageBuyPrice > 0 ? formatThaiBaht(simulation.averageBuyPrice) : '0.00 ฿'}
+                  {simulation.averageBuyPrice > 0 ? `$${simulation.averageBuyPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '$0.00'}
                 </p>
                 <p className="text-xs text-gray-500">
                   {simulation.buyCount || 0} ซื้อ / {simulation.sellCount || 0} ขาย
@@ -1317,14 +1433,14 @@ function TradingPage() {
                     (currentPrice - simulation.averageBuyPrice) >= 0 ? 'text-success' : 'text-danger'
                   }`}>
                     {((currentPrice - simulation.averageBuyPrice) >= 0 ? '+' : '')}
-                    {formatThaiBaht((currentPrice - simulation.averageBuyPrice) * simulation.holdings)}
+                    ${((currentPrice - simulation.averageBuyPrice) * simulation.holdings).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     {' '}
                     ({formatPercentage((currentPrice - simulation.averageBuyPrice) / simulation.averageBuyPrice * 100)})
                   </span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-xs text-gray-500">
-                    ราคาปัจจุบัน: {formatThaiBaht(currentPrice)} vs ราคาซื้อเฉลี่ย: {formatThaiBaht(simulation.averageBuyPrice)}
+                    ราคาปัจจุบัน: ${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} vs ราคาซื้อเฉลี่ย: ${simulation.averageBuyPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
@@ -1369,7 +1485,7 @@ function TradingPage() {
               </div>
               {predictions.length > 0 && (
                 <div className="text-gray-400">
-                  Next: {formatThaiBaht(predictions[0]?.price || 0)} (Confidence: {predictions[0]?.confidence || 0}%)
+                  Next: ${(predictions[0]?.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (Confidence: {predictions[0]?.confidence || 0}%)
                 </div>
               )}
               {/* แสดงสถานะข้อมูล */}
@@ -1424,7 +1540,16 @@ function TradingPage() {
             </div>
           </div>
 
-          {hasChartData ? (
+          {simulation && candlestickData.length > 0 ? (
+            <TradingViewChart
+              title="📈 ราคาและคาดการณ์ (Price & Prediction)"
+              data={candlestickData}
+              volumeData={volumeData}
+              predictionData={predictionLineData}
+              height={500}
+              onTimeframeChange={(timeframe) => setSelectedTimeframe(timeframe)}
+            />
+          ) : hasChartData ? (
             <LineChart
               title="📈 ราคาและคาดการณ์ (Price & Prediction)"
               data={chartData}
@@ -1475,7 +1600,7 @@ function TradingPage() {
                     </div>
                     <div className="space-y-1">
                       <div className="text-xs text-gray-400">
-                        ราคาที่คำนวณ: <span className="text-gray-300 font-semibold">{formatThaiBaht(opp.predictedPrice)}</span>
+                        ราคาที่คำนวณ: <span className="text-gray-300 font-semibold">${opp.predictedPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                       <div className={`text-sm font-bold ${
                         opp.priceChangePercent > 0 ? 'text-success' : 
@@ -1490,7 +1615,7 @@ function TradingPage() {
                           opp.profitOpportunity < 0 ? 'text-danger' : 
                           'text-gray-400'
                         }`}>
-                          กำไร: {opp.profitOpportunity >= 0 ? '+' : ''}{formatThaiBaht(opp.profitOpportunity)}
+                          กำไร: {opp.profitOpportunity >= 0 ? '+' : ''}${opp.profitOpportunity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           <br />
                           ({formatPercentage(opp.profitOpportunityPercent)})
                         </div>
@@ -1524,9 +1649,9 @@ function TradingPage() {
                     {predictionComparison.slice(0, 10).map((comp: any, index: number) => (
                       <tr key={index} className="border-b border-dark-700/50 hover:bg-dark-700/30">
                         <td className="py-2 px-4 text-gray-300">{comp.period}</td>
-                        <td className="py-2 px-4 text-gray-300">{formatThaiBaht(comp.predicted)}</td>
+                        <td className="py-2 px-4 text-gray-300">${comp.predicted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         <td className="py-2 px-4 text-gray-300">
-                          {comp.actual ? formatThaiBaht(comp.actual) : '-'}
+                          {comp.actual ? `$${comp.actual.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
                         </td>
                         <td className={`py-2 px-4 font-semibold ${
                           comp.difference > 0 ? 'text-success' : 
@@ -1535,7 +1660,7 @@ function TradingPage() {
                         }`}>
                           {comp.actual ? (
                             <span>
-                              {comp.difference >= 0 ? '+' : ''}{formatThaiBaht(comp.difference)}
+                              {comp.difference >= 0 ? '+' : ''}${comp.difference.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                           ) : '-'}
                         </td>
@@ -1603,9 +1728,9 @@ function TradingPage() {
                         {trade.type.toUpperCase()}
                       </span>
                     </td>
-                    <td className="py-2 px-4 text-gray-300">{formatThaiBaht(trade.price)}</td>
+                    <td className="py-2 px-4 text-gray-300">${trade.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td className="py-2 px-4 text-gray-300">{trade.quantity.toFixed(8)}</td>
-                    <td className="py-2 px-4 text-gray-300">{formatThaiBaht(trade.amount)}</td>
+                    <td className="py-2 px-4 text-gray-300">${trade.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td className={`py-2 px-4 font-semibold ${
                       (trade.profit !== undefined && trade.profit !== null && trade.profit > 0) ? 'text-success' : 
                       (trade.profit !== undefined && trade.profit !== null && trade.profit < 0) ? 'text-danger' : 
@@ -1615,7 +1740,7 @@ function TradingPage() {
                         <span className="text-gray-500 text-xs">- (ซื้อ)</span>
                       ) : trade.profit !== undefined && trade.profit !== null ? (
                         <div>
-                          <div>{trade.profit >= 0 ? '+' : ''}{formatThaiBaht(trade.profit)}</div>
+                          <div>{trade.profit >= 0 ? '+' : ''}${trade.profit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                           {trade.profitPercentage !== undefined && trade.profitPercentage !== null && (
                             <div className="text-xs">
                               ({formatPercentage(trade.profitPercentage)})

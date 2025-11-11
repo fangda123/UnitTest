@@ -12,6 +12,7 @@ import TradingPage from './pages/TradingPage';
 import TradingPageV2 from './pages/TradingPageV2';
 import TradingPageV3 from './pages/TradingPageV3';
 import TradingPageV4 from './pages/TradingPageV4';
+import TradingInterface from './pages/TradingInterface';
 import UsersManagementPage from './pages/UsersManagementPage';
 import ProfilePage from './pages/ProfilePage';
 
@@ -139,6 +140,15 @@ function AppWithRouter() {
               <DashboardLayout>
                 <TradingPageV4 />
               </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/trading/interface"
+          element={
+            <ProtectedRoute>
+              <TradingInterface />
             </ProtectedRoute>
           }
         />
